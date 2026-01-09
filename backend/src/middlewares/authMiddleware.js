@@ -1,12 +1,12 @@
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 
-export const authMiddleware = async (req, res, next) => {
+const authMiddleware = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(401).json({ message: "No token, authorization denied" });
+      return res.status(401).json({ message: "No token provided" });
     }
 
     const token = authHeader.split(" ")[1];
@@ -22,7 +22,9 @@ export const authMiddleware = async (req, res, next) => {
     req.user = user;
     next();
   } catch (error) {
-    console.error("Auth middleware error:", error);
-    res.status(401).json({ message: "Token is not valid" });
+    console.error(error);
+    return res.status(401).json({ message: "Invalid token" });
   }
 };
+
+export default authMiddleware;
