@@ -1,17 +1,22 @@
 import { Routes, Route, Navigate } from "react-router-dom";
+
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import Notes from "./pages/Notes";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
     <Routes>
-      {/* Public Routes */}
+      {/* ===== Public Routes ===== */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password/:token" element={<ResetPassword />} />
 
-      {/* Protected Routes */}
+      {/* ===== Protected Routes ===== */}
       <Route
         path="/notes"
         element={
@@ -21,7 +26,7 @@ function App() {
         }
       />
 
-      {/* Default */}
+      {/* ===== Fallback ===== */}
       <Route path="/" element={<Navigate to="/login" />} />
       <Route path="*" element={<Navigate to="/login" />} />
     </Routes>
