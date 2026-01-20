@@ -2,9 +2,11 @@ import express from "express";
 import cors from "cors";
 import authRoutes from "./routes/authRoutes.js";
 import noteRoutes from "./routes/noteRoutes.js";
+import loggerMiddleware from "./middlewares/loggerMiddleware.js";
 
 const app = express();
 
+app.use(loggerMiddleware);
 app.use(cors());
 app.use(express.json());
 
