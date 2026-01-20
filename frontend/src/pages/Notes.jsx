@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../api/axios";
 import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const Notes = () => {
   const [notes, setNotes] = useState([]);
@@ -14,7 +15,14 @@ const Notes = () => {
   const [editTitle, setEditTitle] = useState("");
   const [editContent, setEditContent] = useState("");
 
-  const { token } = useAuth();
+  const { token, logout } = useAuth();
+  const navigate = useNavigate();
+
+  // Logout
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
 
   // Fetch notes
   const fetchNotes = async () => {
@@ -28,7 +36,10 @@ const Notes = () => {
       });
       setNotes(res.data);
     } catch (err) {
-      console.error("🔥 Failed to fetch notes:", err.response?.data || err.message);
+      console.error(
+        "🔥 Failed to fetch notes:",
+        err.response?.data || err.message
+      );
     }
   };
 
@@ -61,7 +72,7 @@ const Notes = () => {
         }
       );
 
-      setNotes([res.data, ...notes]); // add new note at top
+      setNotes([res.data, ...notes]);
       setNewTitle("");
       setNewContent("");
     } catch (err) {
@@ -121,6 +132,22 @@ const Notes = () => {
 
   return (
     <div style={{ maxWidth: "600px", margin: "0 auto" }}>
+      {/* LOGOUT */}
+      <button
+        onClick={handleLogout}
+        style={{
+          float: "right",
+          marginBottom: "10px",
+          background: "#e74c3c",
+          color: "#fff",
+          border: "none",
+          padding: "6px 12px",
+          cursor: "pointer",
+        }}
+      >
+        Logout
+      </button>
+
       <h2>Your Notes</h2>
 
       {/* CREATE FORM */}
@@ -147,7 +174,14 @@ const Notes = () => {
       ) : (
         <ul style={{ listStyle: "none", padding: 0 }}>
           {notes.map((note) => (
-            <li key={note.id} style={{ marginBottom: "15px", borderBottom: "1px solid #ddd", paddingBottom: "10px" }}>
+            <li
+              key={note.id}
+              style={{
+                marginBottom: "15px",
+                borderBottom: "1px solid #ddd",
+                paddingBottom: "10px",
+              }}
+            >
               {editingId === note.id ? (
                 <>
                   <input
@@ -164,7 +198,10 @@ const Notes = () => {
                     style={{ width: "100%", marginBottom: "5px" }}
                   />
                   <button onClick={() => handleUpdate(note.id)}>Save</button>
-                  <button onClick={handleCancelEdit} style={{ marginLeft: "5px" }}>
+                  <button
+                    onClick={handleCancelEdit}
+                    style={{ marginLeft: "5px" }}
+                  >
                     Cancel
                   </button>
                 </>
@@ -173,7 +210,10 @@ const Notes = () => {
                   <strong>{note.title}</strong>
                   <p>{note.content}</p>
                   <button onClick={() => handleEditClick(note)}>Edit</button>
-                  <button onClick={() => handleDelete(note.id)} style={{ marginLeft: "5px" }}>
+                  <button
+                    onClick={() => handleDelete(note.id)}
+                    style={{ marginLeft: "5px" }}
+                  >
                     Delete
                   </button>
                 </>
