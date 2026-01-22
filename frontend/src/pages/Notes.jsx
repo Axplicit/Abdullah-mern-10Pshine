@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
 import api from "../api/axios";
 import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const Notes = () => {
+  const { token, user, logout } = useAuth();
+  const navigate = useNavigate();
+
   const [notes, setNotes] = useState([]);
 
   // Create states
@@ -14,7 +18,10 @@ const Notes = () => {
   const [editTitle, setEditTitle] = useState("");
   const [editContent, setEditContent] = useState("");
 
-  const { token } = useAuth();
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
 
   const fetchNotes = async () => {
     if (!token) return;
@@ -97,7 +104,27 @@ const Notes = () => {
 
   return (
     <div style={{ maxWidth: "720px", margin: "40px auto", padding: "20px" }}>
-      <h2 style={{ textAlign: "center", marginBottom: "20px" }}>Your Notes</h2>
+      
+      {/* 🔹 TOP BAR */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "25px",
+          paddingBottom: "10px",
+          borderBottom: "1px solid #ddd",
+        }}
+      >
+        <h2>📝 Notes App</h2>
+
+        <div>
+          <span style={{ marginRight: "15px" }}>
+            Welcome, <strong>{user?.name}</strong>
+          </span>
+          <button onClick={handleLogout}>Logout</button>
+        </div>
+      </div>
 
       {/* CREATE FORM */}
       <form
