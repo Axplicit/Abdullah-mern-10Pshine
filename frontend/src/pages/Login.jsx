@@ -19,8 +19,17 @@ const Login = () => {
   };
 
   return (
-    <div>
-      <h2>Login</h2>
+    <div
+      style={{
+        maxWidth: "400px",
+        margin: "80px auto",
+        padding: "25px",
+        background: "#ffffff",
+        borderRadius: "10px",
+        boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+      }}
+    >
+      <h2 style={{ textAlign: "center", marginBottom: "20px" }}>Login</h2>
 
       <form onSubmit={handleSubmit}>
         <input
@@ -29,8 +38,14 @@ const Login = () => {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
+          style={{
+            width: "100%",
+            padding: "10px",
+            marginBottom: "12px",
+            borderRadius: "6px",
+            border: "1px solid #ddd",
+          }}
         />
-        <br />
 
         <input
           type="password"
@@ -38,18 +53,42 @@ const Login = () => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
+          style={{
+            width: "100%",
+            padding: "10px",
+            marginBottom: "12px",
+            borderRadius: "6px",
+            border: "1px solid #ddd",
+          }}
         />
-        <br />
 
-        <button type="submit">Login</button>
+        <button
+          type="submit"
+          style={{
+            width: "100%",
+            padding: "10px",
+            background: "#4f46e5",
+            color: "white",
+            border: "none",
+            borderRadius: "6px",
+            cursor: "pointer",
+          }}
+        >
+          Login
+        </button>
       </form>
 
-      <p style={{ marginTop: "10px" }}>
-        <Link to="/forgot-password">Forgot password?</Link>
+      <p style={{ marginTop: "15px", textAlign: "center" }}>
+        <Link to="/forgot-password" style={{ color: "#4f46e5" }}>
+          Forgot password?
+        </Link>
       </p>
 
-      <p>
-        Don’t have an account? <Link to="/register">Register</Link>
+      <p style={{ textAlign: "center", marginTop: "10px" }}>
+        Don’t have an account?{" "}
+        <Link to="/register" style={{ color: "#4f46e5" }}>
+          Register
+        </Link>
       </p>
     </div>
   );
