@@ -1,25 +1,26 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-
 import app from "./app.js";
 import sequelize from "./config/db.js";
+import logger from "./utils/logger.js";
 
 const PORT = process.env.PORT || 5001;
 
 const startServer = async () => {
   try {
     await sequelize.authenticate();
-    console.log("Database connected");
+    logger.info("Database connected");
 
-await sequelize.sync({ alter: true });
-    console.log("Models synced");
+    await sequelize.sync({ alter: true });
+    logger.info("Models synced");
 
     app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
+      logger.info(`Server running on port ${PORT}`);
     });
   } catch (error) {
-    console.error("Unable to start server:", error);
+    logger.error({ err: error }, "Unable to start server");
+    process.exit(1);
   }
 };
 

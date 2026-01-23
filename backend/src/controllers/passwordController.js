@@ -1,22 +1,25 @@
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
-import User from "../models/User.js";
 import { Op } from "sequelize";
+import User from "../models/User.js";
+import logger from "../utils/logger.js";
 
-// ================================
+
 // FORGOT PASSWORD
-// ================================
+
 export const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
 
     if (!email) {
+      logger.warn("Forgot password requested without email");
       return res.status(400).json({ message: "Email is required" });
     }
 
     const user = await User.findOne({ where: { email } });
 
     if (!user) {
+      logger.warn({ email }, "Forgot password requested for non-existent user");
       return res.status(404).json({ message: "User not found" });
     }
 
@@ -32,25 +35,34 @@ export const forgotPassword = async (req, res) => {
 
     await user.save();
 
+    logger.info(
+      { userId: user.id },
+      "Password reset token generated"
+    );
+
     res.status(200).json({
       message: "Password reset token generated",
-      resetToken // ⚠️ dev only
+      resetToken // ⚠️ dev-only, NEVER in production
     });
   } catch (error) {
-    console.error("Forgot password error:", error);
+    logger.error(
+      { err: error },
+      "Forgot password flow failed"
+    );
     res.status(500).json({ message: "Server error" });
   }
 };
 
-// ================================
+
 // RESET PASSWORD
-// ================================
+
 export const resetPassword = async (req, res) => {
   try {
     const { token } = req.params;
     const { password } = req.body;
 
     if (!password) {
+      logger.warn("Reset password attempted without new password");
       return res.status(400).json({ message: "Password is required" });
     }
 
@@ -67,6 +79,7 @@ export const resetPassword = async (req, res) => {
     });
 
     if (!user) {
+      logger.warn("Invalid or expired password reset token used");
       return res.status(400).json({ message: "Token is invalid or expired" });
     }
 
@@ -78,9 +91,17 @@ export const resetPassword = async (req, res) => {
 
     await user.save();
 
+    logger.info(
+      { userId: user.id },
+      "Password reset successful"
+    );
+
     res.status(200).json({ message: "Password reset successful" });
   } catch (error) {
-    console.error("Reset password error:", error);
+    logger.error(
+      { err: error },
+      "Reset password flow failed"
+    );
     res.status(500).json({ message: "Server error" });
   }
 };
