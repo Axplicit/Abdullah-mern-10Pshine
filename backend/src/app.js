@@ -3,7 +3,7 @@ import cors from "cors";
 import authRoutes from "./routes/authRoutes.js";
 import noteRoutes from "./routes/noteRoutes.js";
 import loggerMiddleware from "./middlewares/loggerMiddleware.js";
-import { errorHandler } from "./middlewares/errorMiddleware.js";
+import errorHandler from "./middlewares/errorHandler.js";
 
 const app = express();
 
