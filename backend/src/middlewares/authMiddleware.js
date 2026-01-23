@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import logger from "../utils/logger.js";
+import ApiError from "../utils/ApiError.js";
 
 const authMiddleware = async (req, res, next) => {
   try {
@@ -9,9 +10,9 @@ const authMiddleware = async (req, res, next) => {
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       logger.warn(
         { path: req.originalUrl },
-        "Authorization header missing or malformed"
+        "Missing or malformed Authorization header"
       );
-      return res.status(401).json({ message: "No token provided" });
+      throw new ApiError(401, "No token provided");
     }
 
     const token = authHeader.split(" ")[1];
@@ -24,7 +25,7 @@ const authMiddleware = async (req, res, next) => {
         { path: req.originalUrl },
         "Invalid or expired JWT"
       );
-      return res.status(401).json({ message: "Invalid token" });
+      throw new ApiError(401, "Invalid or expired token");
     }
 
     const user = await User.findByPk(decoded.id);
@@ -34,23 +35,23 @@ const authMiddleware = async (req, res, next) => {
         { userId: decoded.id },
         "Authenticated user not found"
       );
-      return res.status(401).json({ message: "User not found" });
+      throw new ApiError(401, "User not found");
     }
 
     req.user = user;
 
     logger.info(
       { userId: user.id, path: req.originalUrl },
-      "User authenticated successfully"
+      "User authenticated"
     );
 
     next();
   } catch (error) {
     logger.error(
-      { err: error },
-      "Auth middleware failure"
+      { err: error, path: req.originalUrl },
+      "Auth middleware error"
     );
-    return res.status(401).json({ message: "Authentication failed" });
+    next(error);
   }
 };
 
