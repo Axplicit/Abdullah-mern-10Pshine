@@ -9,11 +9,11 @@ const Notes = () => {
 
   const [notes, setNotes] = useState([]);
 
-  // Create states
+  // Create
   const [newTitle, setNewTitle] = useState("");
   const [newContent, setNewContent] = useState("");
 
-  // Edit states
+  // Edit
   const [editingId, setEditingId] = useState(null);
   const [editTitle, setEditTitle] = useState("");
   const [editContent, setEditContent] = useState("");
@@ -42,11 +42,7 @@ const Notes = () => {
 
   const handleCreate = async (e) => {
     e.preventDefault();
-
-    if (!newTitle || !newContent) {
-      alert("Title and content are required");
-      return;
-    }
+    if (!newTitle || !newContent) return alert("Title and content required");
 
     try {
       const res = await api.post(
@@ -59,7 +55,7 @@ const Notes = () => {
       setNewTitle("");
       setNewContent("");
     } catch (err) {
-      console.error("Failed to create note", err);
+      console.error("Create failed", err);
     }
   };
 
@@ -68,10 +64,9 @@ const Notes = () => {
       await api.delete(`/notes/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
-      setNotes(notes.filter((note) => note.id !== id));
+      setNotes(notes.filter((n) => n.id !== id));
     } catch (err) {
-      console.error("Failed to delete note", err);
+      console.error("Delete failed", err);
     }
   };
 
@@ -98,13 +93,12 @@ const Notes = () => {
       setNotes(notes.map((n) => (n.id === id ? res.data : n)));
       handleCancelEdit();
     } catch (err) {
-      console.error("Failed to update note", err);
+      console.error("Update failed", err);
     }
   };
 
   return (
     <div style={{ maxWidth: "720px", margin: "40px auto", padding: "20px" }}>
-      
       {/* 🔹 TOP BAR */}
       <div
         style={{
@@ -117,7 +111,6 @@ const Notes = () => {
         }}
       >
         <h2>📝 Notes App</h2>
-
         <div>
           <span style={{ marginRight: "15px" }}>
             Welcome, <strong>{user?.name}</strong>
@@ -126,7 +119,7 @@ const Notes = () => {
         </div>
       </div>
 
-      {/* CREATE FORM */}
+      {/* CREATE */}
       <form
         onSubmit={handleCreate}
         style={{
@@ -138,22 +131,18 @@ const Notes = () => {
         }}
       >
         <input
-          type="text"
           placeholder="Title"
           value={newTitle}
           onChange={(e) => setNewTitle(e.target.value)}
           style={{ width: "100%", padding: "10px", marginBottom: "10px" }}
         />
-
         <textarea
           placeholder="Content"
           value={newContent}
           onChange={(e) => setNewContent(e.target.value)}
           style={{ width: "100%", padding: "10px", marginBottom: "10px" }}
         />
-
         <button
-          type="submit"
           style={{
             width: "100%",
             padding: "10px",
@@ -167,7 +156,7 @@ const Notes = () => {
         </button>
       </form>
 
-      {/* NOTES LIST */}
+      {/* NOTES */}
       {notes.length === 0 ? (
         <p style={{ textAlign: "center" }}>No notes found</p>
       ) : (
@@ -190,13 +179,11 @@ const Notes = () => {
                     onChange={(e) => setEditTitle(e.target.value)}
                     style={{ width: "100%", padding: "8px", marginBottom: "8px" }}
                   />
-
                   <textarea
                     value={editContent}
                     onChange={(e) => setEditContent(e.target.value)}
                     style={{ width: "100%", padding: "8px", marginBottom: "8px" }}
                   />
-
                   <button onClick={() => handleUpdate(note.id)}>Save</button>
                   <button onClick={handleCancelEdit} style={{ marginLeft: "10px" }}>
                     Cancel
@@ -206,9 +193,7 @@ const Notes = () => {
                 <>
                   <strong>{note.title}</strong>
                   <p>{note.content}</p>
-
                   <button onClick={() => handleEditClick(note)}>Edit</button>
-
                   <button
                     onClick={() => handleDelete(note.id)}
                     style={{
