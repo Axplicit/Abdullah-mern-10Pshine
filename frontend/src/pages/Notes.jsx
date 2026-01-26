@@ -23,6 +23,7 @@ const Notes = () => {
     navigate("/login");
   };
 
+  // Fetch notes
   const fetchNotes = async () => {
     if (!token) return;
 
@@ -30,16 +31,20 @@ const Notes = () => {
       const res = await api.get("/notes", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setNotes(res.data);
+
+      // Supports ApiError / wrapped responses
+      setNotes(res.data.notes || res.data.data || []);
     } catch (err) {
       console.error("Failed to fetch notes", err);
+      setNotes([]);
     }
   };
 
   useEffect(() => {
-    if (token) fetchNotes();
+    fetchNotes();
   }, [token]);
 
+  // Create note
   const handleCreate = async (e) => {
     e.preventDefault();
     if (!newTitle || !newContent) return alert("Title and content required");
@@ -51,7 +56,8 @@ const Notes = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      setNotes([res.data, ...notes]);
+      const created = res.data.note || res.data.data;
+      setNotes([created, ...notes]);
       setNewTitle("");
       setNewContent("");
     } catch (err) {
@@ -59,6 +65,7 @@ const Notes = () => {
     }
   };
 
+  // Delete
   const handleDelete = async (id) => {
     try {
       await api.delete(`/notes/${id}`, {
@@ -70,6 +77,7 @@ const Notes = () => {
     }
   };
 
+  // Edit
   const handleEditClick = (note) => {
     setEditingId(note.id);
     setEditTitle(note.title);
@@ -90,7 +98,8 @@ const Notes = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      setNotes(notes.map((n) => (n.id === id ? res.data : n)));
+      const updated = res.data.note || res.data.data;
+      setNotes(notes.map((n) => (n.id === id ? updated : n)));
       handleCancelEdit();
     } catch (err) {
       console.error("Update failed", err);
