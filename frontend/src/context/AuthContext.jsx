@@ -4,48 +4,43 @@ import api from "../api/axios";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem("token"));
+  const [token, setToken] = useState(() => localStorage.getItem("token"));
+  const [user, setUser] = useState(() => {
+    const saved = localStorage.getItem("user");
+    return saved ? JSON.parse(saved) : null;
+  });
 
+  // Keep localStorage in sync
   useEffect(() => {
-    if (token) {
-      const savedUser = localStorage.getItem("user");
-      if (savedUser) {
-        setUser(JSON.parse(savedUser));
-      }
+    if (token && user) {
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
+    } else {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
     }
-  }, [token]);
+  }, [token, user]);
 
-  // 🔐 LOGIN
+  // LOGIN
   const login = async (email, password) => {
     const res = await api.post("/auth/login", { email, password });
-
     setToken(res.data.token);
     setUser(res.data.user);
-
-    localStorage.setItem("token", res.data.token);
-    localStorage.setItem("user", JSON.stringify(res.data.user));
   };
 
-  // 📝 REGISTER
+  // REGISTER
   const register = async (name, email, password) => {
-    await api.post("/auth/register", {
-      name,
-      email,
-      password,
-    });
+    await api.post("/auth/register", { name, email, password });
   };
 
-  // 🚪 LOGOUT
+  // LOGOUT
   const logout = () => {
-    setUser(null);
     setToken(null);
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, register, logout }}>
+    <AuthContext.Provider value={{ token, user, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );
