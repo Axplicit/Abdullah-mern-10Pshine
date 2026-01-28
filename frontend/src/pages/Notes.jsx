@@ -9,9 +9,11 @@ const Notes = () => {
 
   const [notes, setNotes] = useState([]);
 
+  // Create
   const [newTitle, setNewTitle] = useState("");
   const [newContent, setNewContent] = useState("");
 
+  // Edit
   const [editingId, setEditingId] = useState(null);
   const [editTitle, setEditTitle] = useState("");
   const [editContent, setEditContent] = useState("");
@@ -21,6 +23,9 @@ const Notes = () => {
     navigate("/login");
   };
 
+  // ===============================
+  // FETCH NOTES (FIXED)
+  // ===============================
   const fetchNotes = async () => {
     if (!token) return;
 
@@ -29,8 +34,11 @@ const Notes = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (Array.isArray(res.data)) {
-        setNotes(res.data);
+      // ✅ CORRECT RESPONSE HANDLING
+      const notesData = res.data?.data;
+
+      if (Array.isArray(notesData)) {
+        setNotes(notesData);
       } else {
         console.error("Unexpected notes response:", res.data);
         setNotes([]);
@@ -45,8 +53,12 @@ const Notes = () => {
     fetchNotes();
   }, [token]);
 
+  // ===============================
+  // CREATE NOTE
+  // ===============================
   const handleCreate = async (e) => {
     e.preventDefault();
+
     if (!newTitle || !newContent) {
       alert("Title and content required");
       return;
@@ -61,23 +73,30 @@ const Notes = () => {
 
       setNewTitle("");
       setNewContent("");
-      fetchNotes();
+      fetchNotes(); // ✅ re-fetch from backend
     } catch (err) {
       console.error("Create failed", err);
     }
   };
 
+  // ===============================
+  // DELETE NOTE
+  // ===============================
   const handleDelete = async (id) => {
     try {
       await api.delete(`/notes/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+
       fetchNotes();
     } catch (err) {
       console.error("Delete failed", err);
     }
   };
 
+  // ===============================
+  // EDIT NOTE
+  // ===============================
   const handleEditClick = (note) => {
     setEditingId(note.id);
     setEditTitle(note.title);
@@ -107,6 +126,7 @@ const Notes = () => {
 
   return (
     <div style={{ maxWidth: "720px", margin: "40px auto", padding: "20px" }}>
+      {/* ================= TOP BAR ================= */}
       <div
         style={{
           display: "flex",
@@ -126,6 +146,7 @@ const Notes = () => {
         </div>
       </div>
 
+      {/* ================= CREATE NOTE ================= */}
       <form
         onSubmit={handleCreate}
         style={{
@@ -142,12 +163,14 @@ const Notes = () => {
           onChange={(e) => setNewTitle(e.target.value)}
           style={{ width: "100%", padding: "10px", marginBottom: "10px" }}
         />
+
         <textarea
           placeholder="Content"
           value={newContent}
           onChange={(e) => setNewContent(e.target.value)}
           style={{ width: "100%", padding: "10px", marginBottom: "10px" }}
         />
+
         <button
           type="submit"
           style={{
@@ -163,6 +186,7 @@ const Notes = () => {
         </button>
       </form>
 
+      {/* ================= NOTES LIST ================= */}
       {notes.length === 0 ? (
         <p style={{ textAlign: "center" }}>No notes found</p>
       ) : (
@@ -185,11 +209,13 @@ const Notes = () => {
                     onChange={(e) => setEditTitle(e.target.value)}
                     style={{ width: "100%", padding: "8px", marginBottom: "8px" }}
                   />
+
                   <textarea
                     value={editContent}
                     onChange={(e) => setEditContent(e.target.value)}
                     style={{ width: "100%", padding: "8px", marginBottom: "8px" }}
                   />
+
                   <button onClick={() => handleUpdate(note.id)}>Save</button>
                   <button onClick={handleCancelEdit} style={{ marginLeft: "10px" }}>
                     Cancel
@@ -199,6 +225,7 @@ const Notes = () => {
                 <>
                   <strong>{note.title}</strong>
                   <p>{note.content}</p>
+
                   <button onClick={() => handleEditClick(note)}>Edit</button>
                   <button
                     onClick={() => handleDelete(note.id)}
