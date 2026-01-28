@@ -9,11 +9,9 @@ const Notes = () => {
 
   const [notes, setNotes] = useState([]);
 
-  // Create
   const [newTitle, setNewTitle] = useState("");
   const [newContent, setNewContent] = useState("");
 
-  // Edit
   const [editingId, setEditingId] = useState(null);
   const [editTitle, setEditTitle] = useState("");
   const [editContent, setEditContent] = useState("");
@@ -23,7 +21,6 @@ const Notes = () => {
     navigate("/login");
   };
 
-  // Fetch notes
   const fetchNotes = async () => {
     if (!token) return;
 
@@ -32,8 +29,12 @@ const Notes = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      // Supports ApiError / wrapped responses
-      setNotes(res.data.notes || res.data.data || []);
+      if (Array.isArray(res.data)) {
+        setNotes(res.data);
+      } else {
+        console.error("Unexpected notes response:", res.data);
+        setNotes([]);
+      }
     } catch (err) {
       console.error("Failed to fetch notes", err);
       setNotes([]);
@@ -44,40 +45,39 @@ const Notes = () => {
     fetchNotes();
   }, [token]);
 
-  // Create note
   const handleCreate = async (e) => {
     e.preventDefault();
-    if (!newTitle || !newContent) return alert("Title and content required");
+    if (!newTitle || !newContent) {
+      alert("Title and content required");
+      return;
+    }
 
     try {
-      const res = await api.post(
+      await api.post(
         "/notes",
         { title: newTitle, content: newContent },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      const created = res.data.note || res.data.data;
-      setNotes([created, ...notes]);
       setNewTitle("");
       setNewContent("");
+      fetchNotes();
     } catch (err) {
       console.error("Create failed", err);
     }
   };
 
-  // Delete
   const handleDelete = async (id) => {
     try {
       await api.delete(`/notes/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setNotes(notes.filter((n) => n.id !== id));
+      fetchNotes();
     } catch (err) {
       console.error("Delete failed", err);
     }
   };
 
-  // Edit
   const handleEditClick = (note) => {
     setEditingId(note.id);
     setEditTitle(note.title);
@@ -92,15 +92,14 @@ const Notes = () => {
 
   const handleUpdate = async (id) => {
     try {
-      const res = await api.put(
+      await api.put(
         `/notes/${id}`,
         { title: editTitle, content: editContent },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      const updated = res.data.note || res.data.data;
-      setNotes(notes.map((n) => (n.id === id ? updated : n)));
       handleCancelEdit();
+      fetchNotes();
     } catch (err) {
       console.error("Update failed", err);
     }
@@ -108,7 +107,6 @@ const Notes = () => {
 
   return (
     <div style={{ maxWidth: "720px", margin: "40px auto", padding: "20px" }}>
-      {/* 🔹 TOP BAR */}
       <div
         style={{
           display: "flex",
@@ -128,7 +126,6 @@ const Notes = () => {
         </div>
       </div>
 
-      {/* CREATE */}
       <form
         onSubmit={handleCreate}
         style={{
@@ -152,6 +149,7 @@ const Notes = () => {
           style={{ width: "100%", padding: "10px", marginBottom: "10px" }}
         />
         <button
+          type="submit"
           style={{
             width: "100%",
             padding: "10px",
@@ -165,7 +163,6 @@ const Notes = () => {
         </button>
       </form>
 
-      {/* NOTES */}
       {notes.length === 0 ? (
         <p style={{ textAlign: "center" }}>No notes found</p>
       ) : (
