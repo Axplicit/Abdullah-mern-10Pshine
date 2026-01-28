@@ -82,3 +82,12 @@ export const login = async (req, res, next) => {
     next(error); 
   }
 };
+
+export const getMe = async (req, res) => {
+  res.json({
+    id: req.user.id,
+    name: req.user.name,
+    email: req.user.email,
+    createdAt: req.user.createdAt
+  });
+};
