@@ -23,7 +23,9 @@ const Notes = () => {
     navigate("/login");
   };
 
-  // Fetch notes
+  // ===============================
+  // FETCH NOTES (FIXED)
+  // ===============================
   const fetchNotes = async () => {
     if (!token) return;
 
@@ -32,8 +34,15 @@ const Notes = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      // Supports ApiError / wrapped responses
-      setNotes(res.data.notes || res.data.data || []);
+      // ✅ CORRECT RESPONSE HANDLING
+      const notesData = res.data?.data;
+
+      if (Array.isArray(notesData)) {
+        setNotes(notesData);
+      } else {
+        console.error("Unexpected notes response:", res.data);
+        setNotes([]);
+      }
     } catch (err) {
       console.error("Failed to fetch notes", err);
       setNotes([]);
@@ -44,40 +53,50 @@ const Notes = () => {
     fetchNotes();
   }, [token]);
 
-  // Create note
+  // ===============================
+  // CREATE NOTE
+  // ===============================
   const handleCreate = async (e) => {
     e.preventDefault();
-    if (!newTitle || !newContent) return alert("Title and content required");
+
+    if (!newTitle || !newContent) {
+      alert("Title and content required");
+      return;
+    }
 
     try {
-      const res = await api.post(
+      await api.post(
         "/notes",
         { title: newTitle, content: newContent },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      const created = res.data.note || res.data.data;
-      setNotes([created, ...notes]);
       setNewTitle("");
       setNewContent("");
+      fetchNotes(); // ✅ re-fetch from backend
     } catch (err) {
       console.error("Create failed", err);
     }
   };
 
-  // Delete
+  // ===============================
+  // DELETE NOTE
+  // ===============================
   const handleDelete = async (id) => {
     try {
       await api.delete(`/notes/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setNotes(notes.filter((n) => n.id !== id));
+
+      fetchNotes();
     } catch (err) {
       console.error("Delete failed", err);
     }
   };
 
-  // Edit
+  // ===============================
+  // EDIT NOTE
+  // ===============================
   const handleEditClick = (note) => {
     setEditingId(note.id);
     setEditTitle(note.title);
@@ -92,15 +111,14 @@ const Notes = () => {
 
   const handleUpdate = async (id) => {
     try {
-      const res = await api.put(
+      await api.put(
         `/notes/${id}`,
         { title: editTitle, content: editContent },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      const updated = res.data.note || res.data.data;
-      setNotes(notes.map((n) => (n.id === id ? updated : n)));
       handleCancelEdit();
+      fetchNotes();
     } catch (err) {
       console.error("Update failed", err);
     }
@@ -108,7 +126,7 @@ const Notes = () => {
 
   return (
     <div style={{ maxWidth: "720px", margin: "40px auto", padding: "20px" }}>
-      {/* 🔹 TOP BAR */}
+      {/* ================= TOP BAR ================= */}
       <div
         style={{
           display: "flex",
@@ -128,7 +146,7 @@ const Notes = () => {
         </div>
       </div>
 
-      {/* CREATE */}
+      {/* ================= CREATE NOTE ================= */}
       <form
         onSubmit={handleCreate}
         style={{
@@ -145,13 +163,16 @@ const Notes = () => {
           onChange={(e) => setNewTitle(e.target.value)}
           style={{ width: "100%", padding: "10px", marginBottom: "10px" }}
         />
+
         <textarea
           placeholder="Content"
           value={newContent}
           onChange={(e) => setNewContent(e.target.value)}
           style={{ width: "100%", padding: "10px", marginBottom: "10px" }}
         />
+
         <button
+          type="submit"
           style={{
             width: "100%",
             padding: "10px",
@@ -165,7 +186,7 @@ const Notes = () => {
         </button>
       </form>
 
-      {/* NOTES */}
+      {/* ================= NOTES LIST ================= */}
       {notes.length === 0 ? (
         <p style={{ textAlign: "center" }}>No notes found</p>
       ) : (
@@ -188,11 +209,13 @@ const Notes = () => {
                     onChange={(e) => setEditTitle(e.target.value)}
                     style={{ width: "100%", padding: "8px", marginBottom: "8px" }}
                   />
+
                   <textarea
                     value={editContent}
                     onChange={(e) => setEditContent(e.target.value)}
                     style={{ width: "100%", padding: "8px", marginBottom: "8px" }}
                   />
+
                   <button onClick={() => handleUpdate(note.id)}>Save</button>
                   <button onClick={handleCancelEdit} style={{ marginLeft: "10px" }}>
                     Cancel
@@ -202,6 +225,7 @@ const Notes = () => {
                 <>
                   <strong>{note.title}</strong>
                   <p>{note.content}</p>
+
                   <button onClick={() => handleEditClick(note)}>Edit</button>
                   <button
                     onClick={() => handleDelete(note.id)}
