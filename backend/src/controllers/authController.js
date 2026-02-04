@@ -1,7 +1,6 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
-import logger from "../utils/logger.js";
 import ApiError from "../utils/ApiError.js";
 
 // REGISTER
@@ -9,35 +8,16 @@ export const register = async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
 
-    logger.info({ email }, "Register attempt");
+    const exists = await User.findOne({ where: { email } });
+    if (exists) throw new ApiError(400, "User already exists");
 
-    const existingUser = await User.findOne({ where: { email } });
-    if (existingUser) {
-      logger.warn({ email }, "Registration failed: user already exists");
-      throw new ApiError(400, "User already exists");
-    }
+    const hash = await bcrypt.hash(password, 10);
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    await User.create({ name, email, password: hash });
 
-    const user = await User.create({
-      name,
-      email,
-      password: hashedPassword,
-    });
-
-    logger.info(
-      { userId: user.id, email: user.email },
-      "User registered successfully"
-    );
-
-    res.status(201).json({
-      status: "success",
-      message: "User registered successfully",
-    });
-  } catch (error) {
-    logger.error({ err: error, email }, "Register error");
-    next(error); 
+    res.status(201).json({ message: "User registered" });
+  } catch (err) {
+    next(err);
   }
 };
 
@@ -46,48 +26,66 @@ export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
-    logger.info({ email }, "Login attempt");
-
     const user = await User.findOne({ where: { email } });
-    if (!user) {
-      logger.warn({ email }, "Login failed: user not found");
-      throw new ApiError(400, "Invalid credentials");
-    }
+    if (!user) throw new ApiError(400, "Invalid credentials");
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      logger.warn({ userId: user.id }, "Login failed: invalid password");
-      throw new ApiError(400, "Invalid credentials");
-    }
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) throw new ApiError(400, "Invalid credentials");
 
-    const token = jwt.sign(
-      { id: user.id },
-      process.env.JWT_SECRET,
-      { expiresIn: "7d" }
-    );
-
-    logger.info({ userId: user.id }, "User logged in successfully");
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
 
     res.json({
-      status: "success",
       token,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-      },
+      user: { id: user.id, name: user.name, email: user.email },
     });
-  } catch (error) {
-    logger.error({ err: error, email }, "Login error");
-    next(error); 
+  } catch (err) {
+    next(err);
   }
 };
 
-export const getMe = async (req, res) => {
+// GET PROFILE
+export const getProfile = async (req, res) => {
   res.json({
     id: req.user.id,
     name: req.user.name,
     email: req.user.email,
-    createdAt: req.user.createdAt
+    createdAt: req.user.createdAt,
   });
+};
+
+// UPDATE PROFILE
+export const updateProfile = async (req, res, next) => {
+  try {
+    const { name } = req.body;
+    if (!name) throw new ApiError(400, "Name required");
+
+    req.user.name = name;
+    await req.user.save();
+
+    res.json({ message: "Profile updated" });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// CHANGE PASSWORD
+export const changePassword = async (req, res, next) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    const match = await bcrypt.compare(
+      currentPassword,
+      req.user.password
+    );
+    if (!match) throw new ApiError(400, "Wrong password");
+
+    req.user.password = await bcrypt.hash(newPassword, 10);
+    await req.user.save();
+
+    res.json({ message: "Password changed" });
+  } catch (err) {
+    next(err);
+  }
 };
