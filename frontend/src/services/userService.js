@@ -4,7 +4,7 @@ import api from "../api/axios";
 // GET PROFILE
 // =======================
 export const getProfile = async (token) => {
-  const res = await api.get("/auth/me", {
+  const res = await api.get("/auth/profile", {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -13,10 +13,10 @@ export const getProfile = async (token) => {
 };
 
 // =======================
-// UPDATE PROFILE (name)
+// UPDATE PROFILE
 // =======================
 export const updateProfile = async (token, data) => {
-  const res = await api.put("/auth/me", data, {
+  const res = await api.put("/auth/profile", data, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
