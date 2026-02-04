@@ -24,7 +24,7 @@ const Notes = () => {
   };
 
   // ===============================
-  // FETCH NOTES (FIXED)
+  // FETCH NOTES
   // ===============================
   const fetchNotes = async () => {
     if (!token) return;
@@ -34,7 +34,6 @@ const Notes = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      // ✅ CORRECT RESPONSE HANDLING
       const notesData = res.data?.data;
 
       if (Array.isArray(notesData)) {
@@ -73,7 +72,7 @@ const Notes = () => {
 
       setNewTitle("");
       setNewContent("");
-      fetchNotes(); // ✅ re-fetch from backend
+      fetchNotes();
     } catch (err) {
       console.error("Create failed", err);
     }
@@ -87,7 +86,6 @@ const Notes = () => {
       await api.delete(`/notes/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
       fetchNotes();
     } catch (err) {
       console.error("Delete failed", err);
@@ -138,11 +136,35 @@ const Notes = () => {
         }}
       >
         <h2>📝 Notes App</h2>
-        <div>
-          <span style={{ marginRight: "15px" }}>
+
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <span>
             Welcome, <strong>{user?.name}</strong>
           </span>
-          <button onClick={handleLogout}>Logout</button>
+
+          <button
+            onClick={() => navigate("/profile")}
+            style={{
+              padding: "6px 10px",
+              borderRadius: "4px",
+              border: "1px solid #ccc",
+              cursor: "pointer",
+            }}
+          >
+            Profile
+          </button>
+
+          <button
+            onClick={handleLogout}
+            style={{
+              padding: "6px 10px",
+              borderRadius: "4px",
+              border: "1px solid #ccc",
+              cursor: "pointer",
+            }}
+          >
+            Logout
+          </button>
         </div>
       </div>
 

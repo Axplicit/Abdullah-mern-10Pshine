@@ -8,22 +8,20 @@ import {
 } from "../services/userService";
 
 const Profile = () => {
-  const { token, user, logout } = useAuth();
+  const { token, user, logout, setUser } = useAuth();
   const navigate = useNavigate();
 
   const [profile, setProfile] = useState(null);
   const [name, setName] = useState("");
+
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
-  };
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [passwordLoading, setPasswordLoading] = useState(false);
 
-  // Fetch profile
+  // ================= FETCH PROFILE =================
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -38,27 +36,28 @@ const Profile = () => {
     if (token) fetchProfile();
   }, [token]);
 
-  // Update profile
+  // ================= UPDATE PROFILE =================
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
     if (!name.trim()) return alert("Name is required");
 
     try {
-      setLoading(true);
-      const res = await updateProfile(token, { name });
+      setProfileLoading(true);
+      await updateProfile(token, { name });
 
-      // Sync AuthContext + localStorage
-      const updatedUser = { ...user, name: res.data.name };
+      const updatedUser = { ...user, name };
+      setUser(updatedUser);
       localStorage.setItem("user", JSON.stringify(updatedUser));
-      window.location.reload(); // safest sync for now
+
+      alert("Profile updated successfully");
     } catch (err) {
       alert(err.response?.data?.message || "Update failed");
     } finally {
-      setLoading(false);
+      setProfileLoading(false);
     }
   };
 
-  // Change password
+  // ================= CHANGE PASSWORD =================
   const handleChangePassword = async (e) => {
     e.preventDefault();
 
@@ -71,11 +70,8 @@ const Profile = () => {
     }
 
     try {
-      setLoading(true);
-      await changePassword(token, {
-        currentPassword,
-        newPassword,
-      });
+      setPasswordLoading(true);
+      await changePassword(token, { currentPassword, newPassword });
 
       alert("Password changed successfully");
       setCurrentPassword("");
@@ -84,7 +80,7 @@ const Profile = () => {
     } catch (err) {
       alert(err.response?.data?.message || "Password change failed");
     } finally {
-      setLoading(false);
+      setPasswordLoading(false);
     }
   };
 
@@ -99,14 +95,23 @@ const Profile = () => {
         style={{
           display: "flex",
           justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "25px",
-          paddingBottom: "10px",
-          borderBottom: "1px solid #ddd",
+          marginBottom: "20px",
         }}
       >
         <h2>👤 Profile</h2>
-        <button onClick={handleLogout}>Logout</button>
+        <div>
+          <button onClick={() => navigate("/notes")} style={{ marginRight: "10px" }}>
+            Back to Notes
+          </button>
+          <button
+            onClick={() => {
+              logout();
+              navigate("/login");
+            }}
+          >
+            Logout
+          </button>
+        </div>
       </div>
 
       {/* ===== PROFILE INFO ===== */}
@@ -142,8 +147,8 @@ const Profile = () => {
           onChange={(e) => setName(e.target.value)}
           style={{ width: "100%", padding: "10px", marginBottom: "10px" }}
         />
-        <button disabled={loading}>
-          {loading ? "Saving..." : "Save Changes"}
+        <button disabled={profileLoading}>
+          {profileLoading ? "Saving..." : "Save Changes"}
         </button>
       </form>
 
@@ -182,8 +187,8 @@ const Profile = () => {
           style={{ width: "100%", padding: "10px", marginBottom: "10px" }}
         />
 
-        <button disabled={loading}>
-          {loading ? "Updating..." : "Change Password"}
+        <button disabled={passwordLoading}>
+          {passwordLoading ? "Updating..." : "Change Password"}
         </button>
       </form>
     </div>
