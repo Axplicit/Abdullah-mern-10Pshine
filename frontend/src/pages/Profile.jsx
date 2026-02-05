@@ -18,6 +18,7 @@ const Profile = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
+  const [loading, setLoading] = useState(true);
   const [profileLoading, setProfileLoading] = useState(false);
   const [passwordLoading, setPasswordLoading] = useState(false);
 
@@ -30,10 +31,15 @@ const Profile = () => {
         setName(data.name);
       } catch (err) {
         console.error("Failed to load profile", err);
+        logout();
+        navigate("/login");
+      } finally {
+        setLoading(false);
       }
     };
 
     if (token) fetchProfile();
+    else navigate("/login");
   }, [token]);
 
   // ================= UPDATE PROFILE =================
@@ -84,9 +90,12 @@ const Profile = () => {
     }
   };
 
-  if (!profile) {
+  // ================= UI STATES =================
+  if (loading) {
     return <p style={{ textAlign: "center" }}>Loading profile...</p>;
   }
+
+  if (!profile) return null;
 
   return (
     <div style={{ maxWidth: "720px", margin: "40px auto", padding: "20px" }}>
