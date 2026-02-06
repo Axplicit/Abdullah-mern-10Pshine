@@ -34,7 +34,6 @@ const Notes = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      // ✅ CORRECT RESPONSE HANDLING
       const notesData = res.data?.data;
 
       if (Array.isArray(notesData)) {
@@ -73,7 +72,7 @@ const Notes = () => {
 
       setNewTitle("");
       setNewContent("");
-      fetchNotes(); // ✅ re-fetch from backend
+      fetchNotes();
     } catch (err) {
       console.error("Create failed", err);
     }
@@ -87,7 +86,6 @@ const Notes = () => {
       await api.delete(`/notes/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
       fetchNotes();
     } catch (err) {
       console.error("Delete failed", err);
@@ -126,7 +124,7 @@ const Notes = () => {
 
   return (
     <div style={{ maxWidth: "720px", margin: "40px auto", padding: "20px" }}>
-      {/* ================= TOP BAR ================= */}
+      {/* TOP BAR */}
       <div
         style={{
           display: "flex",
@@ -138,108 +136,58 @@ const Notes = () => {
         }}
       >
         <h2>📝 Notes App</h2>
-        <div>
-          <span style={{ marginRight: "15px" }}>
+
+        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+          <span>
             Welcome, <strong>{user?.name}</strong>
           </span>
+
+          <button onClick={() => navigate("/profile")}>Profile</button>
           <button onClick={handleLogout}>Logout</button>
         </div>
       </div>
 
-      {/* ================= CREATE NOTE ================= */}
-      <form
-        onSubmit={handleCreate}
-        style={{
-          background: "#f9f9f9",
-          padding: "15px",
-          borderRadius: "8px",
-          marginBottom: "20px",
-          boxShadow: "0 1px 4px rgba(0,0,0,0.1)",
-        }}
-      >
+      {/* CREATE NOTE */}
+      <form onSubmit={handleCreate}>
         <input
           placeholder="Title"
           value={newTitle}
           onChange={(e) => setNewTitle(e.target.value)}
-          style={{ width: "100%", padding: "10px", marginBottom: "10px" }}
         />
-
         <textarea
           placeholder="Content"
           value={newContent}
           onChange={(e) => setNewContent(e.target.value)}
-          style={{ width: "100%", padding: "10px", marginBottom: "10px" }}
         />
-
-        <button
-          type="submit"
-          style={{
-            width: "100%",
-            padding: "10px",
-            background: "#4f46e5",
-            color: "white",
-            border: "none",
-            borderRadius: "6px",
-          }}
-        >
-          Add Note
-        </button>
+        <button type="submit">Add Note</button>
       </form>
 
-      {/* ================= NOTES LIST ================= */}
+      {/* NOTES LIST */}
       {notes.length === 0 ? (
-        <p style={{ textAlign: "center" }}>No notes found</p>
+        <p>No notes found</p>
       ) : (
-        <ul style={{ listStyle: "none", padding: 0 }}>
+        <ul>
           {notes.map((note) => (
-            <li
-              key={note.id}
-              style={{
-                background: "#ffffff",
-                padding: "15px",
-                borderRadius: "8px",
-                marginBottom: "12px",
-                boxShadow: "0 1px 4px rgba(0,0,0,0.1)",
-              }}
-            >
+            <li key={note.id}>
               {editingId === note.id ? (
                 <>
                   <input
                     value={editTitle}
                     onChange={(e) => setEditTitle(e.target.value)}
-                    style={{ width: "100%", padding: "8px", marginBottom: "8px" }}
                   />
-
                   <textarea
                     value={editContent}
                     onChange={(e) => setEditContent(e.target.value)}
-                    style={{ width: "100%", padding: "8px", marginBottom: "8px" }}
                   />
-
                   <button onClick={() => handleUpdate(note.id)}>Save</button>
-                  <button onClick={handleCancelEdit} style={{ marginLeft: "10px" }}>
-                    Cancel
-                  </button>
+                  <button onClick={handleCancelEdit}>Cancel</button>
                 </>
               ) : (
                 <>
                   <strong>{note.title}</strong>
                   <p>{note.content}</p>
-
                   <button onClick={() => handleEditClick(note)}>Edit</button>
-                  <button
-                    onClick={() => handleDelete(note.id)}
-                    style={{
-                      marginLeft: "10px",
-                      background: "#ef4444",
-                      color: "white",
-                      border: "none",
-                      padding: "6px 10px",
-                      borderRadius: "4px",
-                    }}
-                  >
-                    Delete
-                  </button>
+                  <button onClick={() => handleDelete(note.id)}>Delete</button>
                 </>
               )}
             </li>
