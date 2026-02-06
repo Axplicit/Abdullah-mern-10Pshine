@@ -1,62 +1,59 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
-import logger from "../utils/logger.js";
 import ApiError from "../utils/ApiError.js";
 
-// REGISTER
+/* =========================
+   REGISTER
+========================= */
 export const register = async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
 
-    logger.info({ email }, "Register attempt");
+    if (!name || !email || !password) {
+      throw new ApiError(400, "All fields are required");
+    }
 
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
-      logger.warn({ email }, "Registration failed: user already exists");
       throw new ApiError(400, "User already exists");
     }
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = await User.create({
+    await User.create({
       name,
       email,
       password: hashedPassword,
     });
 
-    logger.info(
-      { userId: user.id, email: user.email },
-      "User registered successfully"
-    );
-
     res.status(201).json({
-      status: "success",
+      success: true,
       message: "User registered successfully",
     });
   } catch (error) {
-    logger.error({ err: error, email }, "Register error");
-    next(error); 
+    next(error);
   }
 };
 
-// LOGIN
+/* =========================
+   LOGIN
+========================= */
 export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
-    logger.info({ email }, "Login attempt");
+    if (!email || !password) {
+      throw new ApiError(400, "Email and password are required");
+    }
 
     const user = await User.findOne({ where: { email } });
     if (!user) {
-      logger.warn({ email }, "Login failed: user not found");
       throw new ApiError(400, "Invalid credentials");
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      logger.warn({ userId: user.id }, "Login failed: invalid password");
       throw new ApiError(400, "Invalid credentials");
     }
 
@@ -66,10 +63,8 @@ export const login = async (req, res, next) => {
       { expiresIn: "7d" }
     );
 
-    logger.info({ userId: user.id }, "User logged in successfully");
-
     res.json({
-      status: "success",
+      success: true,
       token,
       user: {
         id: user.id,
@@ -78,16 +73,78 @@ export const login = async (req, res, next) => {
       },
     });
   } catch (error) {
-    logger.error({ err: error, email }, "Login error");
-    next(error); 
+    next(error);
   }
 };
 
-export const getMe = async (req, res) => {
+/* =========================
+   GET PROFILE
+========================= */
+export const getProfile = async (req, res) => {
   res.json({
     id: req.user.id,
     name: req.user.name,
     email: req.user.email,
-    createdAt: req.user.createdAt
+    createdAt: req.user.createdAt,
   });
+};
+
+/* =========================
+   UPDATE PROFILE (NAME)
+========================= */
+export const updateProfile = async (req, res, next) => {
+  try {
+    const { name } = req.body;
+
+    if (!name || name.trim() === "") {
+      throw new ApiError(400, "Name is required");
+    }
+
+    req.user.name = name.trim();
+    await req.user.save();
+
+    res.json({
+      success: true,
+      user: {
+        id: req.user.id,
+        name: req.user.name,
+        email: req.user.email,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/* =========================
+   CHANGE PASSWORD
+========================= */
+export const changePassword = async (req, res, next) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      throw new ApiError(400, "Current and new password are required");
+    }
+
+    const isMatch = await bcrypt.compare(
+      currentPassword,
+      req.user.password
+    );
+
+    if (!isMatch) {
+      throw new ApiError(400, "Current password is incorrect");
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    req.user.password = hashedPassword;
+    await req.user.save();
+
+    res.json({
+      success: true,
+      message: "Password updated successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
 };
