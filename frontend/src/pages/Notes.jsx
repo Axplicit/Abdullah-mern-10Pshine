@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import api from "../api/axios";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import RichTextEditor from "../components/RichTextEditor";
 
 const Notes = () => {
   const { token, user, logout } = useAuth();
@@ -24,7 +25,7 @@ const Notes = () => {
   };
 
   // ===============================
-  // FETCH NOTES (FIXED)
+  // FETCH NOTES
   // ===============================
   const fetchNotes = async () => {
     if (!token) return;
@@ -58,7 +59,7 @@ const Notes = () => {
   const handleCreate = async (e) => {
     e.preventDefault();
 
-    if (!newTitle || !newContent) {
+    if (!newTitle.trim() || !newContent.trim()) {
       alert("Title and content required");
       return;
     }
@@ -124,7 +125,7 @@ const Notes = () => {
 
   return (
     <div style={{ maxWidth: "720px", margin: "40px auto", padding: "20px" }}>
-      {/* TOP BAR */}
+      {/* ================= TOP BAR ================= */}
       <div
         style={{
           display: "flex",
@@ -135,7 +136,7 @@ const Notes = () => {
           borderBottom: "1px solid #ddd",
         }}
       >
-        <h2>📝 Notes App</h2>
+        <h2>Memora</h2>
 
         <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
           <span>
@@ -147,47 +148,78 @@ const Notes = () => {
         </div>
       </div>
 
-      {/* CREATE NOTE */}
-      <form onSubmit={handleCreate}>
+      {/* ================= CREATE NOTE ================= */}
+      <form onSubmit={handleCreate} style={{ marginBottom: "30px" }}>
         <input
           placeholder="Title"
           value={newTitle}
           onChange={(e) => setNewTitle(e.target.value)}
+          style={{ width: "100%", padding: "10px", marginBottom: "10px" }}
         />
-        <textarea
-          placeholder="Content"
-          value={newContent}
-          onChange={(e) => setNewContent(e.target.value)}
-        />
-        <button type="submit">Add Note</button>
+
+        {/* ✅ editor-content wrapper REQUIRED */}
+        <div className="editor-content">
+          <RichTextEditor value={newContent} onChange={setNewContent} />
+        </div>
+
+        <button type="submit" style={{ marginTop: "10px" }}>
+          Add Note
+        </button>
       </form>
 
-      {/* NOTES LIST */}
+      {/* ================= NOTES LIST ================= */}
       {notes.length === 0 ? (
-        <p>No notes found</p>
+        <p style={{ textAlign: "center" }}>No notes found</p>
       ) : (
-        <ul>
+        <ul style={{ listStyle: "none", padding: 0 }}>
           {notes.map((note) => (
-            <li key={note.id}>
+            <li
+              key={note.id}
+              style={{
+                background: "#fff",
+                padding: "15px",
+                borderRadius: "8px",
+                marginBottom: "12px",
+                boxShadow: "0 1px 4px rgba(0,0,0,0.1)",
+              }}
+            >
               {editingId === note.id ? (
                 <>
                   <input
                     value={editTitle}
                     onChange={(e) => setEditTitle(e.target.value)}
+                    style={{ width: "100%", marginBottom: "10px" }}
                   />
-                  <textarea
-                    value={editContent}
-                    onChange={(e) => setEditContent(e.target.value)}
-                  />
+
+                  <div className="editor-content">
+                    <RichTextEditor
+                      value={editContent}
+                      onChange={setEditContent}
+                    />
+                  </div>
+
                   <button onClick={() => handleUpdate(note.id)}>Save</button>
-                  <button onClick={handleCancelEdit}>Cancel</button>
+                  <button onClick={handleCancelEdit} style={{ marginLeft: "10px" }}>
+                    Cancel
+                  </button>
                 </>
               ) : (
                 <>
                   <strong>{note.title}</strong>
-                  <p>{note.content}</p>
+
+                  {/* ✅ REQUIRED for wrapping + images */}
+                  <div
+                    className="note-content"
+                    dangerouslySetInnerHTML={{ __html: note.content }}
+                  />
+
                   <button onClick={() => handleEditClick(note)}>Edit</button>
-                  <button onClick={() => handleDelete(note.id)}>Delete</button>
+                  <button
+                    onClick={() => handleDelete(note.id)}
+                    style={{ marginLeft: "10px" }}
+                  >
+                    Delete
+                  </button>
                 </>
               )}
             </li>
