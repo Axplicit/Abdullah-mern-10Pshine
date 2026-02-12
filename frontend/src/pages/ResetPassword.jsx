@@ -8,18 +8,25 @@ const ResetPassword = () => {
 
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!password) return;
+
     setLoading(true);
     setMessage("");
 
     try {
       await api.post(`/auth/reset-password/${token}`, { password });
+
+      setSuccess(true);
       setMessage("Password reset successful. Redirecting to login...");
+
       setTimeout(() => navigate("/login"), 1500);
-    } catch (err) {
+    } catch {
+      setSuccess(false);
       setMessage("Token is invalid or expired.");
     } finally {
       setLoading(false);
@@ -27,71 +34,81 @@ const ResetPassword = () => {
   };
 
   return (
-    <div
-      style={{
-        maxWidth: "400px",
-        margin: "80px auto",
-        padding: "25px",
-        background: "#ffffff",
-        borderRadius: "10px",
-        boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
-        textAlign: "center",
-      }}
-    >
-      <h2 style={{ marginBottom: "15px" }}>Reset Password</h2>
-      <p style={{ color: "#666", marginBottom: "20px" }}>
-        Enter a new password for your account.
-      </p>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-[#0f172a] dark:to-[#020617] px-6">
 
-      <form onSubmit={handleSubmit}>
-        <input
-          type="password"
-          placeholder="New password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          style={{
-            width: "100%",
-            padding: "10px",
-            marginBottom: "12px",
-            borderRadius: "6px",
-            border: "1px solid #ddd",
-          }}
-        />
+      <div className="w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-8">
 
-        <button
-          type="submit"
-          disabled={loading}
-          style={{
-            width: "100%",
-            padding: "10px",
-            background: loading ? "#9ca3af" : "#4f46e5",
-            color: "white",
-            border: "none",
-            borderRadius: "6px",
-            cursor: loading ? "not-allowed" : "pointer",
-          }}
-        >
-          {loading ? "Resetting..." : "Reset Password"}
-        </button>
-      </form>
+        <div className="mb-8 text-center">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            Reset Password
+          </h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-2 text-sm">
+            Enter a new password for your account.
+          </p>
+        </div>
 
-      {message && (
-        <p
-          style={{
-            marginTop: "15px",
-            color: message.includes("successful") ? "#16a34a" : "#dc2626",
-          }}
-        >
-          {message}
-        </p>
-      )}
+        <form onSubmit={handleSubmit} className="space-y-6">
 
-      <p style={{ marginTop: "20px" }}>
-        <Link to="/login" style={{ color: "#4f46e5" }}>
-          Back to Login
-        </Link>
-      </p>
+          {/* PASSWORD FIELD */}
+          <div className="relative">
+            <input
+              type="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder=" "
+              className="peer w-full border border-gray-300 dark:border-gray-700 bg-transparent rounded-lg px-3 pt-6 pb-2 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+            <label
+              className="
+              absolute left-3
+              top-2
+              text-xs
+              text-gray-500 dark:text-gray-400
+              transition-all
+              peer-placeholder-shown:text-sm
+              peer-placeholder-shown:top-4
+              peer-placeholder-shown:text-gray-500
+              peer-focus:top-2
+              peer-focus:text-xs
+              peer-focus:text-indigo-500
+              "
+            >
+              New Password
+            </label>
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-indigo-600 text-white py-3 rounded-xl font-medium hover:bg-indigo-700 transition duration-200 disabled:opacity-50"
+          >
+            {loading ? "Resetting..." : "Reset Password"}
+          </button>
+        </form>
+
+        {message && (
+          <div
+            className={`mt-6 text-center text-sm ${
+              success
+                ? "text-green-600 dark:text-green-400"
+                : "text-red-600 dark:text-red-400"
+            }`}
+          >
+            {message}
+          </div>
+        )}
+
+        <div className="mt-6 text-center text-sm">
+          <Link
+            to="/login"
+            className="text-indigo-600 dark:text-indigo-400 hover:underline"
+          >
+            Back to Login
+          </Link>
+        </div>
+
+      </div>
     </div>
   );
 };
