@@ -23,14 +23,14 @@ const ForgotPassword = () => {
 
       const res = await api.post("/auth/forgot-password", { email });
 
-      setMessage(res.data.message || "OTP sent to your email");
+      setMessage("OTP sent to your email");
 
-      // Redirect to reset page with email in state
+      // 🔥 Redirect to reset page after 1.5 seconds
       setTimeout(() => {
         navigate("/reset-password", { state: { email } });
       }, 1500);
 
-    } catch (err) {
+    } catch {
       setMessage("Failed to send OTP. Please try again.");
     } finally {
       setLoading(false);
@@ -66,7 +66,7 @@ const ForgotPassword = () => {
         </form>
 
         {message && (
-          <p className="mt-4 text-center text-sm text-indigo-600 dark:text-indigo-400">
+          <p className="mt-4 text-center text-sm text-green-600 dark:text-green-400">
             {message}
           </p>
         )}
