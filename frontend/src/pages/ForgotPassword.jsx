@@ -1,103 +1,74 @@
 import { useState } from "react";
 import api from "../api/axios";
-import { Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
-  const [token, setToken] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email) return;
+
+    if (!email) {
+      setMessage("Email is required");
+      return;
+    }
 
     try {
       setLoading(true);
+      setMessage("");
+
       const res = await api.post("/auth/forgot-password", { email });
-      setMessage(res.data.message);
-      setToken(res.data.resetToken); // dev only
-    } catch {
-      setMessage("Something went wrong");
+
+      setMessage(res.data.message || "OTP sent to your email");
+
+      // Redirect to reset page with email in state
+      setTimeout(() => {
+        navigate("/reset-password", { state: { email } });
+      }, 1500);
+
+    } catch (err) {
+      setMessage("Failed to send OTP. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-[#0f172a] dark:to-[#020617] px-6">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 px-6">
+      <div className="w-full max-w-md bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg">
 
-      <div className="w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-8">
+        <h2 className="text-2xl font-bold text-center text-gray-900 dark:text-white mb-6">
+          Forgot Password
+        </h2>
 
-        <div className="mb-8 text-center">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Forgot Password
-          </h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-2 text-sm">
-            Enter your email and we’ll send you a reset link.
-          </p>
-        </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-
-          {/* EMAIL FIELD */}
-          <div className="relative">
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder=" "
-              className="peer w-full border border-gray-300 dark:border-gray-700 bg-transparent rounded-lg px-3 pt-6 pb-2 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-            <label
-              className="
-              absolute left-3
-              top-2
-              text-xs
-              text-gray-500 dark:text-gray-400
-              transition-all
-              peer-placeholder-shown:text-sm
-              peer-placeholder-shown:top-4
-              peer-placeholder-shown:text-gray-500
-              peer-focus:top-2
-              peer-focus:text-xs
-              peer-focus:text-indigo-500
-              "
-            >
-              Email Address
-            </label>
-          </div>
+          <input
+            type="email"
+            placeholder="Enter your email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full border border-gray-300 dark:border-gray-600 bg-transparent px-4 py-2 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-indigo-600 text-white py-3 rounded-xl font-medium hover:bg-indigo-700 transition duration-200 disabled:opacity-50"
+            className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition disabled:opacity-50"
           >
-            {loading ? "Sending..." : "Send Reset Link"}
+            {loading ? "Sending OTP..." : "Send OTP"}
           </button>
+
         </form>
 
-        {/* SUCCESS MESSAGE */}
         {message && (
-          <div className="mt-6 text-center text-sm text-green-600 dark:text-green-400">
+          <p className="mt-4 text-center text-sm text-indigo-600 dark:text-indigo-400">
             {message}
-          </div>
-        )}
-
-        {/* DEV RESET LINK */}
-        {token && (
-          <div className="mt-4 text-center text-sm">
-            <span className="text-gray-500 dark:text-gray-400">
-              Dev Reset Link:
-            </span>{" "}
-            <Link
-              to={`/reset-password/${token}`}
-              className="text-indigo-600 dark:text-indigo-400 font-medium hover:underline"
-            >
-              Reset Password
-            </Link>
-          </div>
+          </p>
         )}
 
         <div className="mt-6 text-center text-sm">
