@@ -24,12 +24,13 @@ const User = sequelize.define("User", {
     allowNull: false,
   },
 
-  resetPasswordToken: {
+  // ✅ OTP fields
+  resetOtp: {
     type: DataTypes.STRING,
     allowNull: true,
   },
 
-  resetPasswordExpires: {
+  resetOtpExpires: {
     type: DataTypes.DATE,
     allowNull: true,
   },
