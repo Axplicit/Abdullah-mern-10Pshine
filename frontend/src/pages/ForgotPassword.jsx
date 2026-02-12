@@ -6,87 +6,110 @@ const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [token, setToken] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!email) return;
+
     try {
+      setLoading(true);
       const res = await api.post("/auth/forgot-password", { email });
       setMessage(res.data.message);
       setToken(res.data.resetToken); // dev only
-    } catch (err) {
+    } catch {
       setMessage("Something went wrong");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div
-      style={{
-        maxWidth: "400px",
-        margin: "80px auto",
-        padding: "25px",
-        background: "#ffffff",
-        borderRadius: "10px",
-        boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
-        textAlign: "center",
-      }}
-    >
-      <h2 style={{ marginBottom: "15px" }}>Forgot Password</h2>
-      <p style={{ color: "#666", marginBottom: "20px" }}>
-        Enter your email and we’ll send you a reset link.
-      </p>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-[#0f172a] dark:to-[#020617] px-6">
 
-      <form onSubmit={handleSubmit}>
-        <input
-          type="email"
-          placeholder="Enter your email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          style={{
-            width: "100%",
-            padding: "10px",
-            marginBottom: "12px",
-            borderRadius: "6px",
-            border: "1px solid #ddd",
-          }}
-        />
+      <div className="w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-8">
 
-        <button
-          type="submit"
-          style={{
-            width: "100%",
-            padding: "10px",
-            background: "#4f46e5",
-            color: "white",
-            border: "none",
-            borderRadius: "6px",
-            cursor: "pointer",
-          }}
-        >
-          Send Reset Link
-        </button>
-      </form>
+        <div className="mb-8 text-center">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            Forgot Password
+          </h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-2 text-sm">
+            Enter your email and we’ll send you a reset link.
+          </p>
+        </div>
 
-      {message && (
-        <p style={{ marginTop: "15px", color: "#16a34a" }}>
-          {message}
-        </p>
-      )}
+        <form onSubmit={handleSubmit} className="space-y-6">
 
-      {token && (
-        <p style={{ marginTop: "10px", fontSize: "14px" }}>
-          Dev Reset Link:{" "}
-          <Link to={`/reset-password/${token}`} style={{ color: "#4f46e5" }}>
-            Reset Password
+          {/* EMAIL FIELD */}
+          <div className="relative">
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder=" "
+              className="peer w-full border border-gray-300 dark:border-gray-700 bg-transparent rounded-lg px-3 pt-6 pb-2 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+            <label
+              className="
+              absolute left-3
+              top-2
+              text-xs
+              text-gray-500 dark:text-gray-400
+              transition-all
+              peer-placeholder-shown:text-sm
+              peer-placeholder-shown:top-4
+              peer-placeholder-shown:text-gray-500
+              peer-focus:top-2
+              peer-focus:text-xs
+              peer-focus:text-indigo-500
+              "
+            >
+              Email Address
+            </label>
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-indigo-600 text-white py-3 rounded-xl font-medium hover:bg-indigo-700 transition duration-200 disabled:opacity-50"
+          >
+            {loading ? "Sending..." : "Send Reset Link"}
+          </button>
+        </form>
+
+        {/* SUCCESS MESSAGE */}
+        {message && (
+          <div className="mt-6 text-center text-sm text-green-600 dark:text-green-400">
+            {message}
+          </div>
+        )}
+
+        {/* DEV RESET LINK */}
+        {token && (
+          <div className="mt-4 text-center text-sm">
+            <span className="text-gray-500 dark:text-gray-400">
+              Dev Reset Link:
+            </span>{" "}
+            <Link
+              to={`/reset-password/${token}`}
+              className="text-indigo-600 dark:text-indigo-400 font-medium hover:underline"
+            >
+              Reset Password
+            </Link>
+          </div>
+        )}
+
+        <div className="mt-6 text-center text-sm">
+          <Link
+            to="/login"
+            className="text-indigo-600 dark:text-indigo-400 hover:underline"
+          >
+            Back to Login
           </Link>
-        </p>
-      )}
+        </div>
 
-      <p style={{ marginTop: "20px" }}>
-        <Link to="/login" style={{ color: "#4f46e5" }}>
-          Back to Login
-        </Link>
-      </p>
+      </div>
     </div>
   );
 };

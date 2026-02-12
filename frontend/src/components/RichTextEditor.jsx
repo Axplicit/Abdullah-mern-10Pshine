@@ -16,7 +16,6 @@ import {
   FaListOl,
   FaLink,
   FaImage,
-  FaCode,
 } from "react-icons/fa";
 
 const RichTextEditor = ({ value, onChange }) => {
@@ -24,119 +23,155 @@ const RichTextEditor = ({ value, onChange }) => {
     extensions: [
       StarterKit,
       Underline,
-      Link.configure({ openOnClick: false }),
       Image,
+      Link.configure({ openOnClick: false }),
       TextAlign.configure({ types: ["heading", "paragraph"] }),
     ],
     content: value,
-    onUpdate: ({ editor }) => {
-      onChange(editor.getHTML());
-    },
+    onUpdate: ({ editor }) => onChange(editor.getHTML()),
   });
 
   if (!editor) return null;
 
-  const exec = (e, action) => {
+  const buttonStyle = (active) =>
+    `
+    p-2 rounded-lg text-sm
+    transition-all duration-200 ease-out
+    transform hover:-translate-y-0.5 hover:scale-105 active:scale-95
+    ${
+      active
+        ? "bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 shadow-sm"
+        : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:shadow-md"
+    }
+  `;
+
+  const prevent = (e, action) => {
     e.preventDefault();
     action();
   };
 
-  const addImage = () => {
-    const url = prompt("Enter image URL");
-    if (url) editor.chain().focus().setImage({ src: url }).run();
-  };
-
-  const addLink = () => {
-    const url = prompt("Enter link URL");
-    if (url) {
-      editor
-        .chain()
-        .focus()
-        .extendMarkRange("link")
-        .setLink({ href: url })
-        .run();
-    }
-  };
-
-  const btn = (active) => ({
-    border: "none",
-    background: active ? "#e0e7ff" : "transparent",
-    color: active ? "#4338ca" : "#333",
-    cursor: "pointer",
-    padding: "6px",
-    borderRadius: "4px",
-    fontSize: "16px",
-  });
-
   return (
-    <div style={{ border: "1px solid #ccc", borderRadius: "6px" }}>
-      {/* Toolbar */}
-      <div
-        style={{
-          display: "flex",
-          gap: "6px",
-          padding: "6px",
-          borderBottom: "1px solid #ddd",
-          background: "#f9f9f9",
-          flexWrap: "wrap",
-        }}
-      >
-        <button type="button" style={btn(editor.isActive("bold"))}
-          onMouseDown={(e) => exec(e, () => editor.chain().focus().toggleBold().run())}>
+    <div className="border rounded-xl overflow-hidden bg-white dark:bg-gray-900 shadow-sm backdrop-blur-md">
+      
+      {/* TOOLBAR */}
+      <div className="flex flex-wrap gap-2 border-b bg-gray-50 dark:bg-gray-800 p-3">
+        
+        <button
+          type="button"
+          className={buttonStyle(editor.isActive("bold"))}
+          onMouseDown={(e) =>
+            prevent(e, () => editor.chain().focus().toggleBold().run())
+          }
+        >
           <FaBold />
         </button>
 
-        <button type="button" style={btn(editor.isActive("italic"))}
-          onMouseDown={(e) => exec(e, () => editor.chain().focus().toggleItalic().run())}>
+        <button
+          type="button"
+          className={buttonStyle(editor.isActive("italic"))}
+          onMouseDown={(e) =>
+            prevent(e, () => editor.chain().focus().toggleItalic().run())
+          }
+        >
           <FaItalic />
         </button>
 
-        <button type="button" style={btn(editor.isActive("underline"))}
-          onMouseDown={(e) => exec(e, () => editor.chain().focus().toggleUnderline().run())}>
+        <button
+          type="button"
+          className={buttonStyle(editor.isActive("underline"))}
+          onMouseDown={(e) =>
+            prevent(e, () => editor.chain().focus().toggleUnderline().run())
+          }
+        >
           <FaUnderline />
         </button>
 
-        <button type="button" style={btn(editor.isActive({ textAlign: "left" }))}
-          onMouseDown={(e) => exec(e, () => editor.chain().focus().setTextAlign("left").run())}>
+        <button
+          type="button"
+          className={buttonStyle(editor.isActive({ textAlign: "left" }))}
+          onMouseDown={(e) =>
+            prevent(e, () => editor.chain().focus().setTextAlign("left").run())
+          }
+        >
           <FaAlignLeft />
         </button>
 
-        <button type="button" style={btn(editor.isActive({ textAlign: "center" }))}
-          onMouseDown={(e) => exec(e, () => editor.chain().focus().setTextAlign("center").run())}>
+        <button
+          type="button"
+          className={buttonStyle(editor.isActive({ textAlign: "center" }))}
+          onMouseDown={(e) =>
+            prevent(e, () => editor.chain().focus().setTextAlign("center").run())
+          }
+        >
           <FaAlignCenter />
         </button>
 
-        <button type="button" style={btn(editor.isActive({ textAlign: "right" }))}
-          onMouseDown={(e) => exec(e, () => editor.chain().focus().setTextAlign("right").run())}>
+        <button
+          type="button"
+          className={buttonStyle(editor.isActive({ textAlign: "right" }))}
+          onMouseDown={(e) =>
+            prevent(e, () => editor.chain().focus().setTextAlign("right").run())
+          }
+        >
           <FaAlignRight />
         </button>
 
-        <button type="button" style={btn(editor.isActive("bulletList"))}
-          onMouseDown={(e) => exec(e, () => editor.chain().focus().toggleBulletList().run())}>
+        <button
+          type="button"
+          className={buttonStyle(editor.isActive("bulletList"))}
+          onMouseDown={(e) =>
+            prevent(e, () => editor.chain().focus().toggleBulletList().run())
+          }
+        >
           <FaListUl />
         </button>
 
-        <button type="button" style={btn(editor.isActive("orderedList"))}
-          onMouseDown={(e) => exec(e, () => editor.chain().focus().toggleOrderedList().run())}>
+        <button
+          type="button"
+          className={buttonStyle(editor.isActive("orderedList"))}
+          onMouseDown={(e) =>
+            prevent(e, () => editor.chain().focus().toggleOrderedList().run())
+          }
+        >
           <FaListOl />
         </button>
 
-        <button type="button" style={btn(editor.isActive("link"))} onClick={addLink}>
+        <button
+          type="button"
+          className={buttonStyle(editor.isActive("link"))}
+          onClick={() => {
+            const url = prompt("Enter link URL");
+            if (url) editor.chain().focus().setLink({ href: url }).run();
+          }}
+        >
           <FaLink />
         </button>
 
-        <button type="button" style={btn(false)} onClick={addImage}>
+        <button
+          type="button"
+          className={buttonStyle(false)}
+          onClick={() => {
+            const url = prompt("Enter image URL");
+            if (url) editor.chain().focus().setImage({ src: url }).run();
+          }}
+        >
           <FaImage />
         </button>
 
-        <button type="button" style={btn(editor.isActive("codeBlock"))}
-          onMouseDown={(e) => exec(e, () => editor.chain().focus().toggleCodeBlock().run())}>
-          <FaCode />
-        </button>
       </div>
 
-      {/* Editor */}
-      <EditorContent editor={editor} className="editor-content" />
+      {/* EDITOR CONTENT */}
+      <EditorContent
+        editor={editor}
+        className="
+          p-4 
+          min-h-[160px] 
+          prose 
+          dark:prose-invert 
+          max-w-none 
+          focus:outline-none
+        "
+      />
     </div>
   );
 };

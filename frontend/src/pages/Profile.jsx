@@ -92,114 +92,133 @@ const Profile = () => {
 
   // ================= UI STATES =================
   if (loading) {
-    return <p style={{ textAlign: "center" }}>Loading profile...</p>;
+    return (
+      <div className="min-h-screen flex items-center justify-center dark:bg-gray-900">
+        <p className="text-gray-600 dark:text-gray-300 animate-pulse">
+          Loading profile...
+        </p>
+      </div>
+    );
   }
 
   if (!profile) return null;
 
   return (
-    <div style={{ maxWidth: "720px", margin: "40px auto", padding: "20px" }}>
-      {/* ===== TOP BAR ===== */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          marginBottom: "20px",
-        }}
-      >
-        <h2>👤 Profile</h2>
-        <div>
-          <button onClick={() => navigate("/notes")} style={{ marginRight: "10px" }}>
-            Back to Notes
-          </button>
-          <button
-            onClick={() => {
-              logout();
-              navigate("/login");
-            }}
-          >
-            Logout
-          </button>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-[#0f172a] dark:to-[#020617] transition-colors duration-300">
+
+      {/* HEADER */}
+      <header className="sticky top-0 backdrop-blur-md bg-white/70 dark:bg-[#0f172a]/70 border-b border-gray-200 dark:border-gray-800">
+        <div className="max-w-4xl mx-auto px-6 py-4 flex justify-between items-center">
+          <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
+            👤 Profile
+          </h1>
+
+          <div className="flex gap-4 text-sm">
+            <button
+              onClick={() => navigate("/notes")}
+              className="text-indigo-600 dark:text-indigo-400 hover:underline"
+            >
+              Back to Notes
+            </button>
+
+            <button
+              onClick={() => {
+                logout();
+                navigate("/login");
+              }}
+              className="text-red-500 hover:underline"
+            >
+              Logout
+            </button>
+          </div>
         </div>
-      </div>
+      </header>
 
-      {/* ===== PROFILE INFO ===== */}
-      <div
-        style={{
-          background: "#fff",
-          padding: "15px",
-          borderRadius: "8px",
-          marginBottom: "20px",
-          boxShadow: "0 1px 4px rgba(0,0,0,0.1)",
-        }}
-      >
-        <p><strong>Email:</strong> {profile.email}</p>
-        <p>
-          <strong>Joined:</strong>{" "}
-          {new Date(profile.createdAt).toLocaleDateString()}
-        </p>
-      </div>
+      <main className="max-w-4xl mx-auto px-6 py-10 space-y-8">
 
-      {/* ===== UPDATE PROFILE ===== */}
-      <form
-        onSubmit={handleUpdateProfile}
-        style={{
-          background: "#f9f9f9",
-          padding: "15px",
-          borderRadius: "8px",
-          marginBottom: "20px",
-        }}
-      >
-        <h3>Update Profile</h3>
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          style={{ width: "100%", padding: "10px", marginBottom: "10px" }}
-        />
-        <button disabled={profileLoading}>
-          {profileLoading ? "Saving..." : "Save Changes"}
-        </button>
-      </form>
+        {/* ACCOUNT INFO CARD */}
+        <div className="backdrop-blur-xl bg-white/70 dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl p-6">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            Account Info
+          </h2>
 
-      {/* ===== CHANGE PASSWORD ===== */}
-      <form
-        onSubmit={handleChangePassword}
-        style={{
-          background: "#f9f9f9",
-          padding: "15px",
-          borderRadius: "8px",
-        }}
-      >
-        <h3>Change Password</h3>
+          <div className="space-y-2 text-gray-700 dark:text-gray-300">
+            <p><strong>Email:</strong> {profile.email}</p>
+            <p>
+              <strong>Joined:</strong>{" "}
+              {new Date(profile.createdAt).toLocaleDateString()}
+            </p>
+          </div>
+        </div>
 
-        <input
-          type="password"
-          placeholder="Current password"
-          value={currentPassword}
-          onChange={(e) => setCurrentPassword(e.target.value)}
-          style={{ width: "100%", padding: "10px", marginBottom: "10px" }}
-        />
+        {/* UPDATE PROFILE */}
+        <div className="backdrop-blur-xl bg-white/70 dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl p-6">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">
+            Update Profile
+          </h2>
 
-        <input
-          type="password"
-          placeholder="New password"
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-          style={{ width: "100%", padding: "10px", marginBottom: "10px" }}
-        />
+          <form onSubmit={handleUpdateProfile} className="space-y-6">
 
-        <input
-          type="password"
-          placeholder="Confirm new password"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          style={{ width: "100%", padding: "10px", marginBottom: "10px" }}
-        />
+            <input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full bg-transparent border-b-2 border-gray-300 dark:border-gray-700 focus:border-indigo-500 outline-none text-gray-900 dark:text-white py-2 transition"
+              placeholder="Full Name"
+            />
 
-        <button disabled={passwordLoading}>
-          {passwordLoading ? "Updating..." : "Change Password"}
-        </button>
-      </form>
+            <button
+              type="submit"
+              disabled={profileLoading}
+              className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition shadow-md hover:shadow-lg disabled:opacity-50"
+            >
+              {profileLoading ? "Saving..." : "Save Changes"}
+            </button>
+          </form>
+        </div>
+
+        {/* CHANGE PASSWORD */}
+        <div className="backdrop-blur-xl bg-white/70 dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl p-6">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">
+            Change Password
+          </h2>
+
+          <form onSubmit={handleChangePassword} className="space-y-6">
+
+            <input
+              type="password"
+              placeholder="Current Password"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              className="w-full bg-transparent border-b-2 border-gray-300 dark:border-gray-700 focus:border-indigo-500 outline-none text-gray-900 dark:text-white py-2 transition"
+            />
+
+            <input
+              type="password"
+              placeholder="New Password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              className="w-full bg-transparent border-b-2 border-gray-300 dark:border-gray-700 focus:border-indigo-500 outline-none text-gray-900 dark:text-white py-2 transition"
+            />
+
+            <input
+              type="password"
+              placeholder="Confirm New Password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="w-full bg-transparent border-b-2 border-gray-300 dark:border-gray-700 focus:border-indigo-500 outline-none text-gray-900 dark:text-white py-2 transition"
+            />
+
+            <button
+              type="submit"
+              disabled={passwordLoading}
+              className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition shadow-md hover:shadow-lg disabled:opacity-50"
+            >
+              {passwordLoading ? "Updating..." : "Change Password"}
+            </button>
+          </form>
+        </div>
+
+      </main>
     </div>
   );
 };
