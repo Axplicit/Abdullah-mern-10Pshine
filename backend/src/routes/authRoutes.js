@@ -6,20 +6,31 @@ import {
   updateProfile,
   changePassword,
 } from "../controllers/authController.js";
-import { forgotPassword, resetPassword } from "../controllers/passwordController.js";
+import {
+  forgotPassword,
+  resetPassword,
+} from "../controllers/passwordController.js";
 import authMiddleware from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
-// Auth
+// ==============================
+// AUTH
+// ==============================
 router.post("/register", register);
 router.post("/login", login);
 
-// Password reset
+// ==============================
+// PASSWORD RESET (OTP BASED)
+// ==============================
 router.post("/forgot-password", forgotPassword);
-router.post("/reset-password/:token", resetPassword);
 
-// Profile (protected)
+// 🔥 CHANGED — no :token anymore
+router.post("/reset-password", resetPassword);
+
+// ==============================
+// PROFILE (Protected)
+// ==============================
 router.get("/profile", authMiddleware, getProfile);
 router.put("/profile", authMiddleware, updateProfile);
 router.put("/change-password", authMiddleware, changePassword);

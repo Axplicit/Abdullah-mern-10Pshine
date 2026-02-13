@@ -1,46 +1,58 @@
-import crypto from "crypto";
 import bcrypt from "bcryptjs";
-import { Op } from "sequelize";
 import User from "../models/User.js";
 import logger from "../utils/logger.js";
 import ApiError from "../utils/ApiError.js";
+import nodemailer from "nodemailer";
+import sendEmail from "../utils/sendEmail.js";
 
-// FORGOT PASSWORD
+
+// 📧 Email transporter (Gmail example)
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
+
+// ==============================
+// FORGOT PASSWORD (SEND OTP)
+// ==============================
 export const forgotPassword = async (req, res, next) => {
   try {
     const { email } = req.body;
 
-    logger.info({ email }, "Forgot password request");
-
-    if (!email) {
-      throw new ApiError(400, "Email is required");
-    }
+    if (!email) throw new ApiError(400, "Email is required");
 
     const user = await User.findOne({ where: { email } });
+    if (!user) throw new ApiError(404, "User not found");
 
-    if (!user) {
-      logger.warn({ email }, "Forgot password requested for non-existent user");
-      throw new ApiError(404, "User not found");
-    }
+    // 🔐 Generate 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-    const resetToken = crypto.randomBytes(32).toString("hex");
-
-    const hashedToken = crypto
-      .createHash("sha256")
-      .update(resetToken)
-      .digest("hex");
-
-    user.resetPasswordToken = hashedToken;
-    user.resetPasswordExpires = Date.now() + 15 * 60 * 1000; 
+    user.resetOtp = otp;
+    user.resetOtpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
 
     await user.save();
 
-    logger.info({ userId: user.id }, "Password reset token generated");
+    // 📧 Send email
+    await transporter.sendMail({
+      from: `"Memora Support" <${process.env.EMAIL_USER}>`,
+      to: user.email,
+      subject: "Password Reset OTP",
+      html: `
+        <h2>Password Reset Request</h2>
+        <p>Your OTP for password reset is:</p>
+        <h1>${otp}</h1>
+        <p>This OTP is valid for 10 minutes.</p>
+      `,
+    });
 
-    res.status(200).json({
+    logger.info({ userId: user.id }, "OTP sent successfully");
+
+    res.json({
       status: "success",
-      message: "Password reset token generated",
-      resetToken, 
+      message: "OTP sent to your email",
     });
   } catch (error) {
     logger.error({ err: error }, "Forgot password failed");
@@ -48,40 +60,34 @@ export const forgotPassword = async (req, res, next) => {
   }
 };
 
-// RESET PASSWORD
+// ==============================
+// VERIFY OTP + RESET PASSWORD
+// ==============================
 export const resetPassword = async (req, res, next) => {
   try {
-    const { token } = req.params;
-    const { password } = req.body;
+    const { email, otp, password } = req.body;
 
-    logger.info("Reset password attempt");
+    if (!email || !otp || !password)
+      throw new ApiError(400, "All fields are required");
 
-    if (!password) {
-      throw new ApiError(400, "Password is required");
+    const user = await User.findOne({ where: { email } });
+    if (!user) throw new ApiError(404, "User not found");
+
+    if (
+      user.resetOtp !== otp ||
+      !user.resetOtpExpires ||
+      user.resetOtpExpires < new Date()
+    ) {
+      throw new ApiError(400, "Invalid or expired OTP");
     }
 
-    const hashedToken = crypto
-      .createHash("sha256")
-      .update(token)
-      .digest("hex");
-
-    const user = await User.findOne({
-      where: {
-        resetPasswordToken: hashedToken,
-        resetPasswordExpires: { [Op.gt]: Date.now() },
-      },
-    });
-
-    if (!user) {
-      logger.warn("Invalid or expired reset token used");
-      throw new ApiError(400, "Token is invalid or expired");
-    }
-
+    // 🔐 Hash new password
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(password, salt);
 
-    user.resetPasswordToken = null;
-    user.resetPasswordExpires = null;
+    // 🧹 Clear OTP
+    user.resetOtp = null;
+    user.resetOtpExpires = null;
 
     await user.save();
 
