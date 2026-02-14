@@ -13,6 +13,7 @@ const errorHandler = (err, req, res, next) => {
       statusCode,
       path: req.originalUrl,
       method: req.method,
+      userId: req.user?.id || null,
     },
     "Unhandled application error"
   );
