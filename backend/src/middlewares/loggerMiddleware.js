@@ -1,6 +1,11 @@
 import logger from "../utils/logger.js";
 
 const loggerMiddleware = (req, res, next) => {
+  // 🚫 Disable logging during tests
+  if (process.env.NODE_ENV === "test") {
+    return next();
+  }
+
   const start = Date.now();
 
   res.on("finish", () => {
@@ -12,7 +17,6 @@ const loggerMiddleware = (req, res, next) => {
         url: req.originalUrl,
         status: res.statusCode,
         duration,
-        userId: req.user?.id || null,
       },
       "HTTP request completed"
     );

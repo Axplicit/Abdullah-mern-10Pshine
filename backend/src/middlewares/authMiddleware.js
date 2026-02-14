@@ -32,7 +32,7 @@ const authMiddleware = async (req, res, next) => {
 
     if (!user) {
       logger.warn(
-        { userId: decoded.id },
+        { path: req.originalUrl },
         "Authenticated user not found"
       );
       throw new ApiError(401, "User not found");
@@ -41,7 +41,7 @@ const authMiddleware = async (req, res, next) => {
     req.user = user;
 
     logger.info(
-      { userId: user.id, path: req.originalUrl },
+      { path: req.originalUrl },
       "User authenticated"
     );
 
