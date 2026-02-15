@@ -43,8 +43,9 @@ jobs:
 
       - name: Run Frontend Tests with Coverage
         run: |
-          cd frontend
-          npm run test
+           cd frontend
+           npm run test:coverage
+
 
       # Sonar Scan
       - name: SonarQube Scan
