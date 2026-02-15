@@ -3,21 +3,18 @@ name: SonarCloud Analysis
 on:
   push:
     branches:
-      - Develop
+      - main
       - feature/**
   pull_request:
     branches:
-      - Develop
+      - main
 
 jobs:
   sonarcloud:
     name: Build, Test, and Analyze
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        shell: bash
-
+    # ---------------- MySQL Service ----------------
     services:
       mysql:
         image: mysql:8.0
@@ -31,6 +28,10 @@ jobs:
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
+
+    defaults:
+      run:
+        shell: bash
 
     steps:
       # --- Checkout repository ---
@@ -49,22 +50,9 @@ jobs:
             frontend/package-lock.json
 
       # ---------------- BACKEND ----------------
-      - name: Clean Backend Node Modules
-        working-directory: ./backend
-        run: |
-          rm -rf node_modules package-lock.json
-
       - name: Install Backend Dependencies
         working-directory: ./backend
-        run: npm install --legacy-peer-deps
-
-      - name: Wait for MySQL to be ready
-        run: |
-          for i in {1..30}; do
-            nc -z 127.0.0.1 3306 && echo "MySQL is up" && break
-            echo "Waiting for MySQL..."
-            sleep 2
-          done
+        run: npm ci
 
       - name: Run Backend Tests
         working-directory: ./backend
@@ -95,6 +83,3 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          with:
-          args: >
-            -Dsonar.branch.name=main

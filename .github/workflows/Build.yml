@@ -1,20 +1,22 @@
-name: SonarCloud Analysis
+name: Build & Test
 
 on:
   push:
     branches:
-      - Develop
+      - main
       - feature/**
   pull_request:
     branches:
-      - Develop
+      - main
 
 jobs:
-  sonarcloud:
-    name: Build, Test, and Analyze
+  build:
     runs-on: ubuntu-latest
 
-    # ---------------- MySQL Service ----------------
+    defaults:
+      run:
+        shell: bash
+
     services:
       mysql:
         image: mysql:8.0
@@ -29,15 +31,8 @@ jobs:
           --health-timeout=5s
           --health-retries=5
 
-    defaults:
-      run:
-        shell: bash
-
     steps:
-      # --- Checkout repository ---
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       # --- Setup Node.js ---
       - name: Setup Node
@@ -49,23 +44,10 @@ jobs:
             backend/package-lock.json
             frontend/package-lock.json
 
-      # ---------------- BACKEND ----------------
-      - name: Clean Backend Node Modules
-        working-directory: ./backend
-        run: |
-          rm -rf node_modules package-lock.json
-
+      # --- Backend ---
       - name: Install Backend Dependencies
         working-directory: ./backend
-        run: npm install --legacy-peer-deps
-
-      - name: Wait for MySQL to be ready
-        run: |
-          for i in {1..30}; do
-            nc -z 127.0.0.1 3306 && echo "MySQL is ready" && break
-            echo "Waiting for MySQL..."
-            sleep 2
-          done
+        run: npm ci
 
       - name: Run Backend Tests
         working-directory: ./backend
@@ -76,12 +58,12 @@ jobs:
           DB_USER: root
           DB_PASSWORD: root
           DB_NAME: notes_app
-          EMAIL_USER: test@example.com
-          EMAIL_PASS: testpass
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
           PINO_SILENT: true
         run: npm run test
 
-      # ---------------- FRONTEND ----------------
+      # --- Frontend ---
       - name: Install Frontend Dependencies
         working-directory: ./frontend
         run: npm ci
@@ -89,13 +71,3 @@ jobs:
       - name: Run Frontend Tests
         working-directory: ./frontend
         run: npm run test:coverage
-
-      # ---------------- SONARCLOUD ----------------
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          with:
-          args: >
-            -Dsonar.branch.name=main
