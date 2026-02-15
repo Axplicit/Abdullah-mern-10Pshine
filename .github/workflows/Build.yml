@@ -3,8 +3,8 @@ name: Build
 on:
   push:
     branches:
-      - Develop
-      - feature/**
+     - Develop
+     - feature/**
   pull_request:
     branches:
       - Develop
