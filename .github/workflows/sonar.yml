@@ -9,6 +9,7 @@ on:
     branches:
       - Develop
 
+<<<<<<< HEAD
 jobs:
   sonarcloud:
     name: Build, Test, and Analyze
@@ -18,16 +19,27 @@ jobs:
     defaults:
       run:
         shell: bash
+=======
+
+jobs:
+  sonarcloud:
+    runs-on: ubuntu-latest
+>>>>>>> 9cea999c1d0dda920ca02fa1708d9e060954d2eb
 
     steps:
       - uses: actions/checkout@v4
         with:
+<<<<<<< HEAD
           fetch-depth: 0  # 0 is strictly required for SonarCloud blame information
+=======
+          fetch-depth: 0
+>>>>>>> 9cea999c1d0dda920ca02fa1708d9e060954d2eb
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 18
+<<<<<<< HEAD
           cache: 'npm'             # ENABLE CACHING
           cache-dependency-path: | # Cache both package-lock files
             backend/package-lock.json
@@ -65,3 +77,32 @@ jobs:
           args: >
             -Dsonar.projectKey=YOUR_PROJECT_KEY
             -Dsonar.organization=YOUR_ORG_KEY
+=======
+
+      # Backend
+      - name: Install Backend Dependencies
+        run: |
+          cd backend
+          npm install
+
+      - name: Run Backend Tests with Coverage
+        run: |
+          cd backend
+          npm run test
+
+      # Frontend
+      - name: Install Frontend Dependencies
+        run: |
+          cd frontend
+          npm install
+
+      - name: Run Frontend Tests with Coverage
+        run: |
+           cd frontend
+           npm run test:coverage
+
+      # Sonar Scan
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v2
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

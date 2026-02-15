@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "test": "NODE_ENV=test nyc --reporter=lcov --reporter=text mocha tests/**/*.test.js"
+   "test": "NODE_ENV=test nyc --reporter=lcov --reporter=text mocha tests/**/*.test.js"
+
   },
   "keywords": [],
   "author": "",
@@ -30,8 +31,13 @@
     "chai": "^6.2.2",
     "mocha": "^11.7.5",
     "nodemon": "^3.1.11",
+<<<<<<< HEAD
     "nyc": "^17.1.0",
     "supertest": "^7.2.2"
 
+=======
+    "supertest": "^7.2.2",
+    "nyc": "^15.x.x"
+>>>>>>> 9cea999c1d0dda920ca02fa1708d9e060954d2eb
   }
 }
