@@ -9,45 +9,59 @@ on:
     branches:
       - Develop
 
-
 jobs:
   sonarcloud:
+    name: Build, Test, and Analyze
     runs-on: ubuntu-latest
+    
+    # default settings to avoid repeating 'cd' commands
+    defaults:
+      run:
+        shell: bash
 
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0  # 0 is strictly required for SonarCloud blame information
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 18
+          cache: 'npm'             # ENABLE CACHING
+          cache-dependency-path: | # Cache both package-lock files
+            backend/package-lock.json
+            frontend/package-lock.json
 
-      # Backend
+      # --- Backend ---
       - name: Install Backend Dependencies
-        run: |
-          cd backend
-          npm install
+        working-directory: ./backend # Cleaner directory context
+        run: npm ci                  # 'npm ci' is faster/safer than 'install' for CI
 
-      - name: Run Backend Tests with Coverage
-        run: |
-          cd backend
-          npm run test
+      - name: Run Backend Tests
+        working-directory: ./backend
+        # Ensure this script generates an lcov.info file
+        run: npm run test:coverage   
 
-      # Frontend
+      # --- Frontend ---
       - name: Install Frontend Dependencies
-        run: |
-          cd frontend
-          npm install
+        working-directory: ./frontend
+        run: npm ci
 
-      - name: Run Frontend Tests with Coverage
-        run: |
-           cd frontend
-           npm run test:coverage
+      - name: Run Frontend Tests
+        working-directory: ./frontend
+        run: npm run test:coverage
 
-      # Sonar Scan
+      # --- SonarCloud ---
+      # 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@v2
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          # Optional: If you don't have a sonar-project.properties file,
+          # you can pass arguments here. (See section below)
+          args: >
+            -Dsonar.projectKey=YOUR_PROJECT_KEY
+            -Dsonar.organization=YOUR_ORG_KEY
