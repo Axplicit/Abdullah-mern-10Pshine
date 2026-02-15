@@ -39,7 +39,14 @@ jobs:
 
       - name: Run Backend Tests
         working-directory: ./backend
-        # We use 'npm run test' because that is where we added the coverage flags
+        # FIX: We pass the secrets here so the test can sign tokens (Fixes 401 error)
+        env:
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          # I included these based on your secrets screenshot, just in case tests need DB access
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_NAME: ${{ secrets.DB_NAME }}
         run: npm run test
 
       # --- Frontend ---
@@ -57,5 +64,3 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        # We removed the 'with: args:' section because you created a 
-        # sonar-project.properties file. The action will read that file automatically.
