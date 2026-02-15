@@ -1,3 +1,6 @@
+// backend/tests/notes.test.js
+
+import "./setup.js";
 import request from "supertest";
 import { expect } from "chai";
 import app from "../src/app.js";
@@ -18,7 +21,7 @@ describe("NOTES API", () => {
   };
 
   // ===============================
-  // Setup
+  // Setup - register & login user
   // ===============================
   before(async () => {
     await request(app)
@@ -46,8 +49,7 @@ describe("NOTES API", () => {
         .send(testNote);
 
       expect(res.status).to.equal(201);
-      expect(res.body).to.have.property("status");
-      expect(res.body.status).to.equal("success");
+      expect(res.body).to.have.property("status", "success");
       expect(res.body).to.have.property("data");
 
       createdNoteId = res.body.data.id;
@@ -64,10 +66,8 @@ describe("NOTES API", () => {
         .set("Authorization", `Bearer ${token}`);
 
       expect(res.status).to.equal(200);
-      expect(res.body).to.have.property("status");
-      expect(res.body.status).to.equal("success");
-      expect(res.body).to.have.property("data");
-      expect(res.body.data).to.be.an("array");
+      expect(res.body).to.have.property("status", "success");
+      expect(res.body).to.have.property("data").that.is.an("array");
     });
   });
 
@@ -85,8 +85,7 @@ describe("NOTES API", () => {
         });
 
       expect(res.status).to.equal(200);
-      expect(res.body).to.have.property("status");
-      expect(res.body.status).to.equal("success");
+      expect(res.body).to.have.property("status", "success");
     });
   });
 
@@ -100,8 +99,7 @@ describe("NOTES API", () => {
         .set("Authorization", `Bearer ${token}`);
 
       expect(res.status).to.equal(200);
-      expect(res.body).to.have.property("status");
-      expect(res.body.status).to.equal("success");
+      expect(res.body).to.have.property("status", "success");
     });
   });
 });
