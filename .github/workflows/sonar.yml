@@ -43,7 +43,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 18.18.0
+          node-version: 18.18.00
           cache: 'npm'
           cache-dependency-path: |
             backend/package-lock.json
@@ -65,6 +65,7 @@ jobs:
           DB_NAME: notes_app
           EMAIL_USER: ${{ secrets.EMAIL_USER }}
           EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+          PINO_SILENT: true  # optional, silences logs
         run: npm run test
 
       # ---------------- FRONTEND ----------------
