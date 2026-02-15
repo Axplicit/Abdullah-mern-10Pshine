@@ -3,10 +3,10 @@ import User from "../models/User.js";
 import logger from "../utils/logger.js";
 import ApiError from "../utils/ApiError.js";
 import nodemailer from "nodemailer";
-import sendEmail from "../utils/sendEmail.js";
 
-
-// 📧 Email transporter (Gmail example)
+// ==============================
+// Email transporter
+// ==============================
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -31,29 +31,33 @@ export const forgotPassword = async (req, res, next) => {
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
     user.resetOtp = otp;
-    user.resetOtpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
+    user.resetOtpExpires = new Date(Date.now() + 10 * 60 * 1000);
 
     await user.save();
 
-    // 📧 Send email
-    await transporter.sendMail({
-      from: `"Memora Support" <${process.env.EMAIL_USER}>`,
-      to: user.email,
-      subject: "Password Reset OTP",
-      html: `
-        <h2>Password Reset Request</h2>
-        <p>Your OTP for password reset is:</p>
-        <h1>${otp}</h1>
-        <p>This OTP is valid for 10 minutes.</p>
-      `,
-    });
+    // 🚫 DO NOT send email during tests
+    if (process.env.NODE_ENV !== "test") {
+      await transporter.sendMail({
+        from: `"Memora Support" <${process.env.EMAIL_USER}>`,
+        to: user.email,
+        subject: "Password Reset OTP",
+        html: `
+          <h2>Password Reset Request</h2>
+          <p>Your OTP for password reset is:</p>
+          <h1>${otp}</h1>
+          <p>This OTP is valid for 10 minutes.</p>
+        `,
+      });
+    }
 
-    logger.info({ userId: user.id }, "OTP sent successfully");
+    logger.info({ userId: user.id }, "OTP generated successfully");
 
     res.json({
       status: "success",
       message: "OTP sent to your email",
+      ...(process.env.NODE_ENV === "test" && { otp }), // ✅ return OTP only in tests
     });
+
   } catch (error) {
     logger.error({ err: error }, "Forgot password failed");
     next(error);
@@ -97,6 +101,7 @@ export const resetPassword = async (req, res, next) => {
       status: "success",
       message: "Password reset successful",
     });
+
   } catch (error) {
     logger.error({ err: error }, "Reset password failed");
     next(error);

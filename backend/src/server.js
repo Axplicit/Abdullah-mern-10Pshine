@@ -11,9 +11,11 @@ const startServer = async () => {
   try {
     await sequelize.authenticate();
     logger.info("Database connected");
-
-    await sequelize.sync({ alter: true });
-    logger.info("Models synced");
+    
+    if (process.env.NODE_ENV !== "test") {
+      await sequelize.sync({ alter: true });
+      logger.info("Models synced");
+    }
 
     app.listen(PORT, () => {
       logger.info(`Server running on port ${PORT}`);

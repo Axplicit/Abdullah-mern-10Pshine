@@ -28,7 +28,6 @@ const Register = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-[#0f172a] dark:to-[#020617] px-6">
-
       <div className="w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-8">
 
         <div className="mb-8 text-center">
@@ -45,6 +44,7 @@ const Register = () => {
           {/* NAME */}
           <div className="relative">
             <input
+              id="name"
               type="text"
               required
               value={name}
@@ -53,19 +53,8 @@ const Register = () => {
               className="peer w-full border border-gray-300 dark:border-gray-700 bg-transparent rounded-lg px-3 pt-6 pb-2 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
             <label
-              className="
-              absolute left-3 
-              top-2 
-              text-xs 
-              text-gray-500 dark:text-gray-400
-              transition-all
-              peer-placeholder-shown:text-sm
-              peer-placeholder-shown:top-4
-              peer-placeholder-shown:text-gray-500
-              peer-focus:top-2
-              peer-focus:text-xs
-              peer-focus:text-indigo-500
-              "
+              htmlFor="name"
+              className="absolute left-3 top-2 text-xs text-gray-500 dark:text-gray-400 transition-all peer-placeholder-shown:text-sm peer-placeholder-shown:top-4 peer-placeholder-shown:text-gray-500 peer-focus:top-2 peer-focus:text-xs peer-focus:text-indigo-500"
             >
               Full Name
             </label>
@@ -74,6 +63,7 @@ const Register = () => {
           {/* EMAIL */}
           <div className="relative">
             <input
+              id="email"
               type="email"
               required
               value={email}
@@ -82,19 +72,8 @@ const Register = () => {
               className="peer w-full border border-gray-300 dark:border-gray-700 bg-transparent rounded-lg px-3 pt-6 pb-2 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
             <label
-              className="
-              absolute left-3 
-              top-2 
-              text-xs 
-              text-gray-500 dark:text-gray-400
-              transition-all
-              peer-placeholder-shown:text-sm
-              peer-placeholder-shown:top-4
-              peer-placeholder-shown:text-gray-500
-              peer-focus:top-2
-              peer-focus:text-xs
-              peer-focus:text-indigo-500
-              "
+              htmlFor="email"
+              className="absolute left-3 top-2 text-xs text-gray-500 dark:text-gray-400 transition-all peer-placeholder-shown:text-sm peer-placeholder-shown:top-4 peer-placeholder-shown:text-gray-500 peer-focus:top-2 peer-focus:text-xs peer-focus:text-indigo-500"
             >
               Email
             </label>
@@ -103,6 +82,7 @@ const Register = () => {
           {/* PASSWORD */}
           <div className="relative">
             <input
+              id="password"
               type="password"
               required
               value={password}
@@ -111,19 +91,8 @@ const Register = () => {
               className="peer w-full border border-gray-300 dark:border-gray-700 bg-transparent rounded-lg px-3 pt-6 pb-2 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
             <label
-              className="
-              absolute left-3 
-              top-2 
-              text-xs 
-              text-gray-500 dark:text-gray-400
-              transition-all
-              peer-placeholder-shown:text-sm
-              peer-placeholder-shown:top-4
-              peer-placeholder-shown:text-gray-500
-              peer-focus:top-2
-              peer-focus:text-xs
-              peer-focus:text-indigo-500
-              "
+              htmlFor="password"
+              className="absolute left-3 top-2 text-xs text-gray-500 dark:text-gray-400 transition-all peer-placeholder-shown:text-sm peer-placeholder-shown:top-4 peer-placeholder-shown:text-gray-500 peer-focus:top-2 peer-focus:text-xs peer-focus:text-indigo-500"
             >
               Password
             </label>
@@ -136,6 +105,7 @@ const Register = () => {
           >
             {loading ? "Creating account..." : "Register"}
           </button>
+
         </form>
 
         <div className="mt-6 text-center text-sm">
