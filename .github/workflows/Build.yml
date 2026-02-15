@@ -14,6 +14,10 @@ jobs:
     name: Build, Test, and Analyze
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        shell: bash
+
     # ---------------- MySQL Service ----------------
     services:
       mysql:
@@ -29,10 +33,6 @@ jobs:
           --health-timeout=5s
           --health-retries=5
 
-    defaults:
-      run:
-        shell: bash
-
     steps:
       # --- Checkout repository ---
       - uses: actions/checkout@v4
@@ -43,7 +43,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 18.18.0     # Updated Node version for frontend compatibility
+          node-version: 18.16.0        # stable Node 18 for pino + Vitest
           cache: 'npm'
           cache-dependency-path: |
             backend/package-lock.json
@@ -63,8 +63,9 @@ jobs:
           DB_USER: root
           DB_PASSWORD: root
           DB_NAME: notes_app
-          EMAIL_USER: test@example.com
-          EMAIL_PASS: testpass
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+          PINO_SILENT: true             # disable pino logging in tests
         run: npm run test
 
       # ---------------- FRONTEND ----------------
@@ -74,6 +75,8 @@ jobs:
 
       - name: Run Frontend Tests
         working-directory: ./frontend
+        env:
+          NODE_OPTIONS: "--no-warnings"  # prevents Vitest from crashing on internal modules
         run: npm run test:coverage
 
       # ---------------- SONARCLOUD ----------------

@@ -39,11 +39,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      # --- Setup Node.js ---
+      # --- Setup Node.js (pinned to stable 18.x) ---
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 18.18.0
+          node-version: 18.16.0  # safer Node version for pino and vitest
           cache: 'npm'
           cache-dependency-path: |
             backend/package-lock.json
@@ -65,6 +65,8 @@ jobs:
           DB_NAME: notes_app
           EMAIL_USER: ${{ secrets.EMAIL_USER }}
           EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+          # Disable pino logging in tests to avoid diagChan errors
+          PINO_SILENT: true
         run: npm run test
 
       # ---------------- FRONTEND ----------------
@@ -74,6 +76,9 @@ jobs:
 
       - name: Run Frontend Tests
         working-directory: ./frontend
+        env:
+          # Vitest might fail on node:inspector/promises in Node 18.16
+          NODE_OPTIONS: "--no-warnings"
         run: npm run test:coverage
 
       # ---------------- SONARCLOUD ----------------
