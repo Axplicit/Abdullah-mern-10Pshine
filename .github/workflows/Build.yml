@@ -39,14 +39,18 @@ jobs:
 
       - name: Run Backend Tests
         working-directory: ./backend
-        # --- CRITICAL FIX START ---
-        # We must pass the GitHub Secrets to the test environment here
+        # --- THIS IS THE MISSING PART ---
         env:
-         JWT_SECRET: ${{ secrets.JWT_SECRET }}
-         DB_HOST: ${{ secrets.DB_HOST }}
-         DB_USER: ${{ secrets.DB_USER }}
-         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-         DB_NAME: ${{ secrets.DB_NAME }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          # Mapping the database secrets from your screenshot
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          # If your app uses these for email features in tests
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+        # -------------------------------
         run: npm run test
 
       # --- Frontend ---

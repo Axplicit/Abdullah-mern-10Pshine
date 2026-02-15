@@ -39,14 +39,18 @@ jobs:
 
       - name: Run Backend Tests
         working-directory: ./backend
-        # FIX: We pass the secrets here so the test can sign tokens (Fixes 401 error)
+        # --- THIS IS THE MISSING PART ---
         env:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          # I included these based on your secrets screenshot, just in case tests need DB access
+          # Mapping the database secrets from your screenshot
           DB_HOST: ${{ secrets.DB_HOST }}
           DB_USER: ${{ secrets.DB_USER }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           DB_NAME: ${{ secrets.DB_NAME }}
+          # If your app uses these for email features in tests
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+        # -------------------------------
         run: npm run test
 
       # --- Frontend ---
