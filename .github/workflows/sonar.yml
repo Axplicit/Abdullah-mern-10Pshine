@@ -34,21 +34,22 @@ jobs:
           --health-retries=5
 
     steps:
+      # --- Checkout repository ---
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
+      # --- Setup Node.js ---
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 18.18.0
           cache: 'npm'
           cache-dependency-path: |
             backend/package-lock.json
             frontend/package-lock.json
 
       # ---------------- BACKEND ----------------
-
       - name: Install Backend Dependencies
         working-directory: ./backend
         run: npm ci
@@ -62,10 +63,11 @@ jobs:
           DB_USER: root
           DB_PASSWORD: root
           DB_NAME: notes_app
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
         run: npm run test
 
       # ---------------- FRONTEND ----------------
-
       - name: Install Frontend Dependencies
         working-directory: ./frontend
         run: npm ci
@@ -75,7 +77,6 @@ jobs:
         run: npm run test:coverage
 
       # ---------------- SONARCLOUD ----------------
-
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@v2
         env:
