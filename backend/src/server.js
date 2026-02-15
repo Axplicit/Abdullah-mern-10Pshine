@@ -7,23 +7,30 @@ import logger from "./utils/logger.js";
 
 const PORT = process.env.PORT || 5001;
 
-const startServer = async () => {
+// Start server function
+export const startServer = async () => {
   try {
     await sequelize.authenticate();
     logger.info("Database connected");
-    
+
     if (process.env.NODE_ENV !== "test") {
       await sequelize.sync({ alter: true });
       logger.info("Models synced");
-    }
 
-    app.listen(PORT, () => {
-      logger.info(`Server running on port ${PORT}`);
-    });
+      app.listen(PORT, () => {
+        logger.info(`Server running on port ${PORT}`);
+      });
+    }
   } catch (error) {
     logger.error({ err: error }, "Unable to start server");
     process.exit(1);
   }
 };
 
-startServer();
+// Only start automatically if not in test mode
+if (process.env.NODE_ENV !== "test") {
+  startServer();
+}
+
+// Export for testing
+export { sequelize };

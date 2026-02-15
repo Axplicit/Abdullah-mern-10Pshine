@@ -14,17 +14,21 @@ jobs:
     name: Build, Test, and Analyze
     runs-on: ubuntu-latest
 
-    # --- MySQL Service Container ---
+    # ---------------- MySQL Service ----------------
     services:
       mysql:
         image: mysql:8.0
         env:
           MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: notes_app   # Creates the database automatically
+          MYSQL_DATABASE: notes_app
         ports:
           - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
-    
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
     defaults:
       run:
         shell: bash
@@ -32,7 +36,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # 0 is strictly required for SonarCloud blame information
+          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -43,28 +47,27 @@ jobs:
             backend/package-lock.json
             frontend/package-lock.json
 
-      # --- Backend ---
+      # ---------------- BACKEND ----------------
+
       - name: Install Backend Dependencies
         working-directory: ./backend
         run: npm ci
 
       - name: Run Backend Tests
         working-directory: ./backend
-        # --- THIS IS THE MISSING PART ---
         env:
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          # Mapping the database secrets from your screenshot
-          DB_HOST: ${{ secrets.DB_HOST }}
-          DB_USER: ${{ secrets.DB_USER }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          DB_NAME: ${{ secrets.DB_NAME }}
-          # If your app uses these for email features in tests
-          EMAIL_USER: ${{ secrets.EMAIL_USER }}
-          EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
-        # -------------------------------
+          NODE_ENV: test
+          JWT_SECRET: testsecret
+          DB_HOST: 127.0.0.1
+          DB_USER: root
+          DB_PASSWORD: root
+          DB_NAME: notes_app
+          EMAIL_USER: test@example.com
+          EMAIL_PASS: testpass
         run: npm run test
 
-      # --- Frontend ---
+      # ---------------- FRONTEND ----------------
+
       - name: Install Frontend Dependencies
         working-directory: ./frontend
         run: npm ci
@@ -73,7 +76,8 @@ jobs:
         working-directory: ./frontend
         run: npm run test:coverage
 
-      # --- SonarCloud ---
+      # ---------------- SONARCLOUD ----------------
+
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@v2
         env:
