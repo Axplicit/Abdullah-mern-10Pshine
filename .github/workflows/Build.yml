@@ -43,16 +43,29 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 18.18.0    # Updated Node version for frontend compatibility
+          node-version: 20.20.0
           cache: 'npm'
           cache-dependency-path: |
             backend/package-lock.json
             frontend/package-lock.json
 
       # ---------------- BACKEND ----------------
+      - name: Clean Backend Node Modules
+        working-directory: ./backend
+        run: |
+          rm -rf node_modules package-lock.json
+
       - name: Install Backend Dependencies
         working-directory: ./backend
-        run: npm ci
+        run: npm install --legacy-peer-deps
+
+      - name: Wait for MySQL to be ready
+        run: |
+          for i in {1..30}; do
+            nc -z 127.0.0.1 3306 && echo "MySQL is ready" && break
+            echo "Waiting for MySQL..."
+            sleep 2
+          done
 
       - name: Run Backend Tests
         working-directory: ./backend
@@ -65,7 +78,7 @@ jobs:
           DB_NAME: notes_app
           EMAIL_USER: test@example.com
           EMAIL_PASS: testpass
-          PINO_SILENT: true  # optional, silences logs
+          PINO_SILENT: true
         run: npm run test
 
       # ---------------- FRONTEND ----------------
