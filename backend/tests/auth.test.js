@@ -1,5 +1,5 @@
 // backend/tests/auth.test.js
-import "../setup.js";  // ensures DB is ready
+import "./setup.js";
 import request from "supertest";
 import { expect } from "chai";
 import app from "../src/app.js";

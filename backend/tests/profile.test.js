@@ -1,6 +1,6 @@
 // backend/tests/profile.test.js
 
-import "../setup.js"; // ✅ ensures DB tables are ready
+import "./setup.js";
 import request from "supertest";
 import { expect } from "chai";
 import app from "../src/app.js";
