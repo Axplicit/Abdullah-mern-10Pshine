@@ -1,17 +1,19 @@
+// backend/tests/auth.test.js
+import "../setup.js";  // ensures DB is ready
 import request from "supertest";
 import { expect } from "chai";
 import app from "../src/app.js";
 
 let authToken;
 
-describe("AUTH API", () => {
+// Generate unique email every test run
+const testUser = {
+  name: "Test User",
+  email: `test${Date.now()}@example.com`,
+  password: "Password123"
+};
 
-  // Generate unique email every test run
-  const testUser = {
-    name: "Test User",
-    email: `test${Date.now()}@example.com`,
-    password: "Password123"
-  };
+describe("AUTH API", () => {
 
   // ===============================
   // REGISTER

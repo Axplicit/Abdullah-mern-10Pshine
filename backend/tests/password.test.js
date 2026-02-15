@@ -1,3 +1,6 @@
+// backend/tests/password.test.js
+
+import "../setup.js"; // ✅ ensures DB tables are ready
 import request from "supertest";
 import { expect } from "chai";
 import app from "../src/app.js";
@@ -12,7 +15,6 @@ describe("PASSWORD RESET API (OTP Flow)", () => {
   };
 
   const newPassword = "NewPassword123";
-
   let otpCode;
 
   // ===============================
@@ -35,8 +37,7 @@ describe("PASSWORD RESET API (OTP Flow)", () => {
         .send({ email: testUser.email });
 
       expect(res.status).to.equal(200);
-      expect(res.body).to.have.property("status");
-      expect(res.body.status).to.equal("success");
+      expect(res.body).to.have.property("status", "success");
 
       // Fetch updated user from DB
       const user = await User.findOne({ where: { email: testUser.email } });
@@ -65,8 +66,7 @@ describe("PASSWORD RESET API (OTP Flow)", () => {
         });
 
       expect(res.status).to.equal(200);
-      expect(res.body).to.have.property("status");
-      expect(res.body.status).to.equal("success");
+      expect(res.body).to.have.property("status", "success");
     });
 
   });

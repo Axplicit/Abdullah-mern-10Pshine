@@ -1,3 +1,6 @@
+// backend/tests/profile.test.js
+
+import "../setup.js"; // ✅ ensures DB tables are ready
 import request from "supertest";
 import { expect } from "chai";
 import app from "../src/app.js";
@@ -58,8 +61,7 @@ describe("PROFILE API", () => {
         .send({ name: "Updated Name" });
 
       expect(res.status).to.equal(200);
-      expect(res.body).to.have.property("success");
-      expect(res.body.success).to.equal(true);
+      expect(res.body).to.have.property("success", true);
     });
   });
 
@@ -77,8 +79,7 @@ describe("PROFILE API", () => {
         });
 
       expect(res.status).to.equal(200);
-      expect(res.body).to.have.property("success");
-      expect(res.body.success).to.equal(true);
+      expect(res.body).to.have.property("success", true);
     });
   });
 });
