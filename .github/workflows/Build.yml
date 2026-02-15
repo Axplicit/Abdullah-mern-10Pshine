@@ -1,54 +1,58 @@
-name: Build
+name: SonarCloud Analysis
 
 on:
   push:
     branches:
-     - Develop
-     - feature/**
+      - Develop
+      - feature/**
   pull_request:
     branches:
       - Develop
 
 jobs:
-  sonarqube:
-    name: SonarQube
+  sonarcloud:
+    name: Build, Test, and Analyze
     runs-on: ubuntu-latest
+    
+    defaults:
+      run:
+        shell: bash
 
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0  # 0 is strictly required for SonarCloud blame information
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 18
+          cache: 'npm'
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
 
-      # Backend
+      # --- Backend ---
       - name: Install Backend Dependencies
-        run: |
-          cd backend
-          npm install
+        working-directory: ./backend
+        run: npm ci
 
-      - name: Run Backend Tests with Coverage
-        run: |
-          cd backend
-          npm run test
+      - name: Run Backend Tests
+        working-directory: ./backend
+        run: npm run test   # FIXED: Changed from 'test:coverage' to 'test'
 
-      # Frontend
+      # --- Frontend ---
       - name: Install Frontend Dependencies
-        run: |
-          cd frontend
-          npm install
+        working-directory: ./frontend
+        run: npm ci
 
-      - name: Run Frontend Tests with Coverage
-        run: |
-           cd frontend
-           npm run test:coverage
+      - name: Run Frontend Tests
+        working-directory: ./frontend
+        run: npm run test:coverage
 
-
-      # Sonar Scan
-      - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v6
+      # --- SonarCloud ---
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v2
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

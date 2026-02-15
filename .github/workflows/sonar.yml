@@ -14,7 +14,6 @@ jobs:
     name: Build, Test, and Analyze
     runs-on: ubuntu-latest
     
-    # default settings to avoid repeating 'cd' commands
     defaults:
       run:
         shell: bash
@@ -28,21 +27,20 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 18
-
-          cache: 'npm'             # ENABLE CACHING
-          cache-dependency-path: | # Cache both package-lock files
+          cache: 'npm'
+          cache-dependency-path: |
             backend/package-lock.json
             frontend/package-lock.json
 
       # --- Backend ---
       - name: Install Backend Dependencies
-        working-directory: ./backend # Cleaner directory context
-        run: npm ci                  # 'npm ci' is faster/safer than 'install' for CI
+        working-directory: ./backend
+        run: npm ci
 
       - name: Run Backend Tests
         working-directory: ./backend
-        # Ensure this script generates an lcov.info file
-        run: npm run test:coverage   
+        # We use 'npm run test' because that is where we added the coverage flags
+        run: npm run test
 
       # --- Frontend ---
       - name: Install Frontend Dependencies
@@ -54,44 +52,10 @@ jobs:
         run: npm run test:coverage
 
       # --- SonarCloud ---
-      # 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@v2
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          # Optional: If you don't have a sonar-project.properties file,
-          # you can pass arguments here. (See section below)
-          args: >
-            -Dsonar.projectKey=YOUR_PROJECT_KEY
-            -Dsonar.organization=YOUR_ORG_KEY
-
-
-      # Backend
-      - name: Install Backend Dependencies
-        run: |
-          cd backend
-          npm install
-
-      - name: Run Backend Tests with Coverage
-        run: |
-          cd backend
-          npm run test
-
-      # Frontend
-      - name: Install Frontend Dependencies
-        run: |
-          cd frontend
-          npm install
-
-      - name: Run Frontend Tests with Coverage
-        run: |
-           cd frontend
-           npm run test:coverage
-
-      # Sonar Scan
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@v2
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        # We removed the 'with: args:' section because you created a 
+        # sonar-project.properties file. The action will read that file automatically.
