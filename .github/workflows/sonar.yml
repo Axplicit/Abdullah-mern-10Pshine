@@ -3,6 +3,7 @@ name: SonarCloud Analysis
 on:
   push:
     branches:
+      - Develop
       - feature/**
   pull_request:
     branches:
@@ -29,10 +30,10 @@ jobs:
           cd backend
           npm install
 
-      - name: Run Backend Tests
+      - name: Run Backend Tests with Coverage
         run: |
           cd backend
-          npm run test -- --coverage
+          npm run test
 
       # Frontend
       - name: Install Frontend Dependencies
@@ -40,10 +41,10 @@ jobs:
           cd frontend
           npm install
 
-      - name: Run Frontend Tests
+      - name: Run Frontend Tests with Coverage
         run: |
-          cd frontend
-          npm run test -- --coverage
+           cd frontend
+           npm run test:coverage
 
       # Sonar Scan
       - name: SonarCloud Scan
