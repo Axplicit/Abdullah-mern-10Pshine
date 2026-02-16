@@ -140,7 +140,7 @@ Abdullah Mohammad Rashid
 
 [Visit My GitHub](https://github.com/Axplicit)
 
-[My LinkedIn](https://www.linkedin.com/in/abdullah-m-rashid)
+[My LinkedIn](https://www.linkedin.com/in/abdullah-m-rashid-816baa24a)
 
 Last Updated: February 2026.
 
