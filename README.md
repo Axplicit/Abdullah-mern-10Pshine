@@ -1,63 +1,91 @@
-📝 Notes App (MERN Stack)
+#MERN Notes App 
 
-A full-stack MERN (MongoDB / Express / React / Node.js) application for managing personal notes with user authentication, password reset, and profile management. This project also includes automated testing and SonarCloud integration for code quality and coverage analysis.
+##Full-Stack Notes Management System with Authentication, Testing & CI 
 
-Table of Contents
+##Overview 
 
-Features
+A production-structured full-stack Notes Application built using the MERN stack  
+(MongoDB, Express, React, Node.js) with middleware architecture, automated testing,  
+CI/CD integration, and SonarQube code quality analysis. 
 
-Tech Stack
+##Tech Stack 
 
-Architecture
+Backend: 
+- Node.js 
+- Express.js 
+- MongoDB 
+- Mongoose 
+- JWT (jsonwebtoken) 
+- bcrypt 
+- Mocha 
+- NYC (coverage) 
+- Pino (structured logging) 
+ 
+Frontend: 
+- React 
+- Vite 
+- Axios 
+- React Router 
+- Vitest (testing) 
+- Coverage reporting enabled 
+ 
+##DevOps / Quality: 
+- GitHub Actions 
+- SonarQube 
+- LCOV coverage reporting 
 
-Getting Started
+##Core Features 
 
-Environment Variables
+- JWT Authentication with protected routes 
+- Centralized error handling 
+- Structured logging 
+- Backend & Frontend unit testing 
+- Code coverage reporting 
+- CI pipeline integration 
+- RESTful API architecture 
 
-Backend
+##Project Structure 
 
-Installation
+root/ 
+├── backend/ 
+│   ├── controllers/ 
+│   ├── middlewares/ 
+│   ├── models/ 
+│   ├── routes/ 
+│   ├── utils/ 
+│   ├── tests/ 
+│   └── server.js 
+├── frontend/ 
+│   ├── src/ 
+│   ├── __tests__/ 
+│   ├── vite.config.js 
+│   └── main.jsx 
+└── .github/ 
+    └── workflows/ 
+        └── build.yml 
 
-Testing
+##Running the Project 
 
-API Endpoints
+Backend: 
+cd backend 
+npm install 
+npm start 
+ 
+Frontend: 
+cd frontend 
+npm install 
+npm run dev 
 
-Frontend
+##Running Tests 
 
-Installation
+Backend: 
+cd backend 
+npm test 
+ 
+Frontend: 
+cd frontend 
+npm run test:coverage 
 
-Running
+##Author 
 
-SonarCloud Integration
-
-Contributing
-
-License
-
-Features
-
-User authentication (register, login)
-
-Password reset with OTP verification
-
-CRUD operations for notes
-
-User profile management
-
-JWT-based authorization
-
-Unit and integration tests
-
-Code quality monitoring with SonarCloud
-
-Tech Stack
-
-Backend: Node.js, Express.js, Sequelize ORM, MySQL
-
-Frontend: React.js, Redux, Axios
-
-Testing: Mocha, Chai, Supertest, NYC (coverage)
-
-CI/CD: GitHub Actions
-
-Code Quality: SonarCloud
+Abdullah Mohammad Rashid
