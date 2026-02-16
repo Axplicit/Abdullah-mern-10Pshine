@@ -1,91 +1,147 @@
-#MERN Notes App 
+# Memora - MERN Stack Notes Management Application
+A production-structured full-stack application for creating, organizing, and managing notes with integrated authentication, automated testing, and CI/CD pipelines.
 
-##Full-Stack Notes Management System with Authentication, Testing & CI 
+**Frontend Repo:** `./frontend`
 
-##Overview 
+**Backend Repo:** `./backend`
 
-A production-structured full-stack Notes Application built using the MERN stack  
-(MongoDB, Express, React, Node.js) with middleware architecture, automated testing,  
-CI/CD integration, and SonarQube code quality analysis. 
+# 🚀 Overview
+Memora is a professional notes management tool built with the MERN stack (MongoDB, Express, React, Node.js). It features a robust middleware architecture and focuses on high code quality through SonarQube analysis and comprehensive unit testing for both frontend and backend.
 
-##Tech Stack 
+# ✨ Key Features
+## Authentication & Security
+- ✅ Secure Login: JWT-based authentication for protected API routes.
 
-Backend: 
-- Node.js 
-- Express.js 
-- MongoDB 
-- Mongoose 
-- JWT (jsonwebtoken) 
-- bcrypt 
-- Mocha 
-- NYC (coverage) 
-- Pino (structured logging) 
+- ✅ Password Encryption: Industry-standard hashing using `bcrypt`.
+
+- ✅ Session Management: Persistent user sessions and secure logout.
+
+- ✅ Protected Routes: Frontend and backend guards to prevent unauthorized access.
+
+## Notes Management
+- ✅ Full CRUD Functionality: Create, Read, Update, and Delete notes seamlessly.
+
+- ✅ RESTful API: Structured endpoints for efficient data handling.
+
+- ✅ Organized Storage: Scalable MongoDB schemas for user-specific data.
+
+- ✅ Search & Filter: Quickly locate specific notes within the database.
+
+## DevOps & Quality Assurance
+- ✅ Automated Testing: * Backend: Unit and integration tests using Mocha.
+
+  - Frontend: Modern component testing with Vitest.
+
+- ✅ Code Coverage: Full reporting enabled via NYC and LCOV.
+
+- ✅ CI/CD Integration: GitHub Actions pipeline for automated builds.
+
+- ✅ Code Quality: Integrated SonarQube analysis for static code checks.
+
+- ✅ Structured Logging: Production-grade logging using Pino.
+
+# 🛠 Tech Stack
+## Frontend
+- **Framework:** React with Vite
+
+- **Routing:** React Router
+
+- **State/API:** Axios
+
+- **Testing:** Vitest
+
+## Backend
+- **Server:** Node.js & Express.js
+
+- **Database:** MongoDB & Mongoose
+
+- **Auth: JWT** (jsonwebtoken)
+
+- **Logging:** Pino
+
+# 📂 Project Structure
+```
+root/
+├── backend/              # Express API & Middleware
+│   ├── controllers/      # Route logic
+│   ├── middlewares/      # Auth & Error handlers
+│   ├── models/           # Mongoose schemas
+│   └── tests/            # Mocha test suites
+│
+├── frontend/             # React Application
+│   ├── src/              # Components & Logic
+│   └── __tests__/        # Vitest suites
+│
+└── .github/              # CI/CD Workflows
+```
+
+# ⚙️ Running the Project
+## Backend
+1. `cd backend`
+
+2. `npm install`
+
+3. `npm start`
+
+## Frontend
+1. `cd frontend`
+
+2. `npm install`
+
+3. `npm run dev`
+
+# 🧪 Testing & Quality Assurance
+Comprehensive testing is integrated into both the frontend and backend to ensure application stability and code reliability.
+
+## Backend Testing (Mocha & NYC)
+- ✅ **Unit Testing:** Individual route handlers and controllers are tested using **Mocha** and **Chai**.
+
+- ✅ **Integration Testing:** API endpoints are validated for correct status codes and data responses.
+
+- ✅ **Coverage Reporting:** Detailed code coverage metrics are generated using **NYC**.
+
+- ✅ **Execution:**
+
+  1. `cd backend`
+  2. `npm test`
  
-Frontend: 
-- React 
-- Vite 
-- Axios 
-- React Router 
-- Vitest (testing) 
-- Coverage reporting enabled 
+## Frontend Testing (Vitest)
+- ✅ **Component Testing:** UI components are tested in isolation using **Vitest**.
+
+- ✅ **Logic Validation:** Utility functions and state transitions are verified for consistency.
+
+- ✅ **Coverage Reporting:** Full coverage dashboards are enabled through Vitest's built-in reporter.
+
+- ✅ **Execution:**
+
+  1. `cd frontend`
+  2. `npm run test:coverage`
  
-##DevOps / Quality: 
-- GitHub Actions 
-- SonarQube 
-- LCOV coverage reporting 
+## Code Quality & CI/CD
+- ✅ **SonarQube Analysis:** Automated static code analysis to detect bugs, vulnerabilities, and code smells.
 
-##Core Features 
+- ✅ **LCOV Reporting:** Test results are exported in LCOV format for seamless integration with quality gates.
 
-- JWT Authentication with protected routes 
-- Centralized error handling 
-- Structured logging 
-- Backend & Frontend unit testing 
-- Code coverage reporting 
-- CI pipeline integration 
-- RESTful API architecture 
+- ✅ **GitHub Actions:** Every push triggers an automated build and test pipeline to ensure no regressions are introduced.
 
-##Project Structure 
+## Testing & DevOps Tools
+- **Runner:** Mocha (Backend), Vitest (Frontend)
 
-root/ 
-├── backend/ 
-│   ├── controllers/ 
-│   ├── middlewares/ 
-│   ├── models/ 
-│   ├── routes/ 
-│   ├── utils/ 
-│   ├── tests/ 
-│   └── server.js 
-├── frontend/ 
-│   ├── src/ 
-│   ├── __tests__/ 
-│   ├── vite.config.js 
-│   └── main.jsx 
-└── .github/ 
-    └── workflows/ 
-        └── build.yml 
+- **Coverage:** NYC, LCOV
 
-##Running the Project 
+- **Quality**: SonarQube
 
-Backend: 
-cd backend 
-npm install 
-npm start 
- 
-Frontend: 
-cd frontend 
-npm install 
-npm run dev 
+- **Pipeline:** GitHub Actions
 
-##Running Tests 
+- **Logging:** Pino (Structured Logging)
 
-Backend: 
-cd backend 
-npm test 
- 
-Frontend: 
-cd frontend 
-npm run test:coverage 
-
-##Author 
-
+# 👤 Author
 Abdullah Mohammad Rashid
+
+[Visit My GitHub](https://github.com/Axplicit)
+
+[My LinkedIn](https://www.linkedin.com/in/abdullah-m-rashid)
+
+Last Updated: February 2026.
+
+
