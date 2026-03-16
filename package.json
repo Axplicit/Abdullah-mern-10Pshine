@@ -1,8 +1,0 @@
-{
-  "devDependencies": {
-    "nyc": "^17.1.0"
-  },
-  "dependencies": {
-    "pino": "^10.3.1"
-  }
-}
